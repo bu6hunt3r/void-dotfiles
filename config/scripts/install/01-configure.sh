@@ -21,3 +21,10 @@ menu () {
         break
     done
 }
+
+tests () {
+    ls /sys/firmware/efi/efivars > /dev/null && \
+        ping voidlinux.org -c 1 > /dev/null &&  \
+        modprobe zfs &&
+        print "Tests ok"
+}
