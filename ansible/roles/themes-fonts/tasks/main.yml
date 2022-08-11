@@ -1,0 +1,86 @@
+---
+- name: install packages
+  community.general.xbps:
+    name: '{{item}}'
+  loop:
+      # Fonts
+      - noto-fonts-ttf # unicode font
+      - nerd-fonts # Iconic font aggregator
+      - font-awesome5 # Icon font
+      - Adapta # theme for tiny waybar
+
+### Equilux
+
+- name: stat equilux theme
+  stat:
+    path: /usr/share/themes/Equilux
+  register: equilux
+
+- name: download equilux theme
+  unarchive:
+    src: https://github.com/ddnexus/equilux-theme/archive/equilux-v20181029.tar.gz
+    dest: /tmp/
+    remote_src: yes
+  when: equilux.stat.islnk is not defined
+
+- name: install equilux theme
+  shell: bash /tmp/equilux-theme-equilux-v20181029/install.sh -d /usr/share/themes
+  when: equilux.stat.islnk is not defined
+
+### Jetbrains
+
+- name: stat jetbrains font
+  stat:
+    path: /usr/share/fonts/TTF/JetBrainsMono-Regular.ttf
+  register: jetbrains
+
+- name: create font dir
+  file:
+    path: /tmp/jetbrains
+    state: directory
+  when: jetbrains.stat.islnk is not defined
+
+- name: download jetbrains font
+  unarchive:
+    src: https://download.jetbrains.com/fonts/JetBrainsMono-2.001.zip
+    dest: /tmp/jetbrains/
+    remote_src: yes
+    creates: /tmp/jetbrains/ttf
+  when: jetbrains.stat.islnk is not defined
+
+- name: install jetbrains font
+  copy:
+    src: '{{ item }}'
+    dest: /usr/share/fonts/TTF/
+    remote_src: yes
+  with_fileglob: /tmp/jetbrains/ttf/*
+  when: jetbrains.stat.islnk is not defined
+
+### Cabin
+
+- name: stat cabin font
+  stat:
+    path: /usr/share/fonts/OTF/Cabin-Regular.otf
+  register: cabin
+
+- name: create font dir
+  file:
+    path: /tmp/cabin
+    state: directory
+  when: cabin.stat.islnk is not defined
+
+- name: download imparallari-cabin font
+  unarchive:
+    src: https://codeload.github.com/impallari/Cabin/zip/master
+    dest: /tmp/cabin/
+    remote_src: yes
+    creates: /tmp/cabin/Cabin-master
+  when: cabin.stat.islnk is not defined
+
+- name: install imparallari-cabin font
+  copy:
+    src: '{{ item }}'
+    dest: /usr/share/fonts/OTF/
+    remote_src: yes
+  with_fileglob: /tmp/cabin/Cabin-master/fonts/OTF/*
+  when: cabin.stat.islnk is not defined

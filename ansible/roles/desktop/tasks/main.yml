@@ -1,0 +1,121 @@
+---
+- name: install desktop packages
+  community.general.xbps:
+    name: '{{item}}'
+  loop:
+      # DE
+      - sway # wayland wm and compositor
+      - swaybg # background manager for sway
+      - swaylock # session locker
+      - xorg-server-xwayland # xorg backend for wayland
+      - Waybar # bar for sway
+      - mako # notification daemon
+      - kanshi # autorandr for wayland
+      - grim # screenshots
+      - slurp # region selector
+      - wl-clipboard # clipboard manager
+      - wdisplays # arandr for wayland
+      - wf-recorder # screen recorder for wayland
+      - grimshot # grim+slurp wrapper
+      - waypipe # ssh -X for wayland
+      - wofi # rofi for wayland
+      - wob # bars for wayland
+      - xdg-desktop-portal-wlr # screen sharing for wayland
+      - brightnessctl # brightness manager
+      - qt5-wayland # enable qt5 wayland backend
+      - libappindicator # tray sway
+      - swayidle
+      - xdg-user-dirs
+      - xdg-utils
+      - glfw-wayland
+      - pam_rundir # XDG_RUNTIME_DIR when seatd
+      - wlsunset # day/night gamma adjustments
+      # Video
+      - mesa # DRI 3D acceleration
+      - mesa-dri # DRI 3D acceleration
+      - mesa-demos # glxgears command
+      - intel-media-driver # intel driver iHD
+      - libva-utils # hardware video acceleration
+      # Steam
+      - mesa-vulkan-intel
+      - mesa-vulkan-intel-32bit
+      # Audio
+      #- pulseaudio # audio server
+      - pipewire # audio server
+      - alsa-pipewire
+      - wireplumber
+      #- libao-pulse # fix bt for pipewire
+      - pavucontrol # pulseaudio ui
+      - pulseaudio-utils
+      - pamixer # alsa ui
+      - alsa-utils # alsa toolbox
+      # Graphical apps
+      - imv # img visualizer
+      - kitty # terminal emulator
+      - firefox-i18n-de # web browser
+      - gimp # img editor
+      - evolution # mail/contact/agenda client
+      - seahorse # gnome keyring manager
+      - kolourpaint # img editor
+      - shotwell # photo manager
+      - swappy # screenshot editor
+      - libreoffice # libreoffice
+      - libreoffice-i18n-de # libreoffice suite fr
+      - lxappearance # theme manager
+      - gnome-themes-extra # adwaita-dark theme
+      - mpv # video player
+      - Thunar # file manager
+      - tumbler # thumbnailer
+      - openvpn
+      - playerctl # music player cli controller
+      - rdesktop # remote desktop client
+      - remmina # remote desktop client
+      - transmission-gtk # torrent downloader
+      - texlive-bin # latex
+      - texlive-core # latex
+      - texlive-latexextra # latex
+      - texlive-XeTeX # xelatex
+      - texlive-Xdvi # xelatex
+      - variety # random backgrounds
+      - papirus-icon-theme # icon theme
+      - youtube-dl
+      - gnome-ssh-askpass # ssh askpass gui
+      - Signal-Desktop # messaging app
+      - x2goclient # linux remote desktop client
+      - torbrowser-launcher
+# - downgrade # package downgrader
+
+- name: install steam packages
+  community.general.xbps:
+    name: '{{item}}'
+  loop:
+      - steam # games manager
+      - xrandr # some games requires it
+      - mono
+      - libgcc-32bit
+      - libstdc++-32bit
+      - libdrm-32bit
+      - libglvnd-32bit
+      - mesa-dri-32bit
+
+- name: configure pam_rundir
+  lineinfile:
+    path: /etc/pam.d/login
+    regexp: 'pam_rundir.so'
+    line: 'session		optional	pam_rundir.so'
+    state: present
+
+- name: configure pipewire alsa
+  file:
+    path: /etc/alsa/conf.d
+    state: directory
+    recurse: yes
+
+- name: symlink pipewire alsa
+  file:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: link
+  loop:
+    - { src: /usr/share/alsa/alsa.conf.d/50-pipewire.conf, dest: /etc/alsa/conf.d/50-pipewire.conf }
+    - { src: /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf, dest: /etc/alsa/conf.d/99-pipewire-default.conf }

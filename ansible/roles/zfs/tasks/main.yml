@@ -1,0 +1,23 @@
+---
+- name: install zrepl
+  community.general.xbps:
+    name: zrepl # zfs snapshot manager
+
+- name: create zrepl dir
+  file:
+    path: /etc/zrepl
+    state: directory
+
+- name: configure zrepl
+  blockinfile:
+    block: "{{ lookup('file', 'zrepl.yml') }}"
+    marker: "# {mark} snapshot config"
+    dest: /etc/zrepl/zrepl.yml
+    create: yes
+  notify: restart zrepl
+
+- name: setup daily zfs scrub
+  copy:
+    src: zscrub
+    dest: /etc/cron.weekly/
+    mode: 0755

@@ -1,0 +1,24 @@
+---
+- name: copy pre-install zfs snapshot kernel hook
+  copy:
+    dest: /etc/kernel.d/pre-install/10-zfs
+    mode: 0755
+    content: |
+      # Find the name of the current boot environment
+      BOOTENV="$(awk '$2 == "/" && $3 == "zfs" {print $1}' /proc/mounts)"
+      [ -n "${BOOTENV}" ] || exit
+      # Create a snapshot of the current state, differntiated by time
+      zfs snapshot "${BOOTENV}@kernel_upgrade_$(date +%Y-%m-%d_%H:%M:%S)" || exit
+      # Prune all except 2 last kernel_upgrade snapshots
+      zfs list -t snapshot -s creation -o name -H "${BOOTENV}" | \
+          grep @kernel_upgrade_ | head -n -2 | \
+          while read -r snapname; do
+              zfs destroy "${snapname}"
+          done
+- name: copy pre-install vkpurge kernel hook
+  copy:
+    dest: /etc/kernel.d/pre-install/20-vkpurge
+    mode: 0755
+    content: |
+      #!/bin/sh
+      vkpurge rm all
