@@ -1,0 +1,28 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    user: user
+    shell: /usr/bin/zsh
+
+  pre_tasks:
+    - name: Enable multilib
+      community.general.xbps:
+        name:
+          - void-repo-multilib
+          - void-repo-multilib-nonfree
+
+  roles:
+    - { role: base, tags: base }
+    - { role: kernel, tags: kernel}
+    - { role: desktop, tags: desktop }
+    - { role: flatpak, tags: flatpak }
+    - { role: appimage, tags: appimage }
+    - { role: temp, tags: temp }
+    - { role: runit, tags: runit }
+    - { role: power, tags: power }
+    - { role: themes-fonts, tags: themes-fonts }
+    - { role: virtualization, tags: virtualization }
+    - { role: containers, tags: containers }
+    - { role: zfs, tags: zfs }
+    - { role: acpi, tags: acpi }

@@ -1,0 +1,81 @@
+---
+- name: install packages
+  community.general.xbps:
+    name: '{{item}}'
+  loop:
+    # shell
+    - zsh
+    - go # programming language
+    - bc # maths
+    - jq # json processor
+    - bat # colorized cat
+    - tree
+    - screen
+    - expect
+    - tiny # irc client
+    - nnn # terminal file manager
+    # System
+    - xtools # helpers for working with xbps
+    - htop
+    - net-tools # netstat
+    - fwupd # dell firmware updater
+    - nmap # port scanner
+    - tcpdump # packet analyzer
+    - whois # query registry
+    - efivar # tool to manipulate efi vars
+    - vsv # list runit services
+    # Disk
+    - iotop # disk "top"
+    - ncdu # disk usage analyzer
+    - smartmontools # S.M.A.R.T Monitoring tools
+    # Network
+    - nethogs # net "top"
+    - openssh
+    - sshpass # allow ansible -k
+    - sshuttle # vpn through ssh
+    - fuse-sshfs # mount a remote filesystem using SFTP
+    - keychain # ssh-agent wrapper
+    - wget # downloader
+    - bind-utils # dns tools
+    - openbsd-netcat # network utility
+    - speedtest-cli
+    # Utils
+    - at # scheduler
+    - borg # backup utility
+    - borg # backup utility automation
+    - gopass # unix password manager
+    - pinentry-gtk # gtk gpg pinentry
+    - rsync
+    - syncthing
+    - rclone
+    - fzf
+    - neofetch
+    - unzip
+    - cifs-utils
+    - shellcheck
+    - pastel # color viewer
+    - python-pip
+    - python3-pip
+    - python3-netaddr # ipmath for ansible
+    - dmidecode # dump dmi table content
+    - pastebinit
+    - zim # wiki app
+    - ipcalc # ipv4 network calculator
+
+
+- name: Configure root
+  user:
+    name: root
+    shell: '{{shell}}'
+
+- name: Configure user
+  user:
+    name: '{{user}}'
+    shell: '{{shell}}'
+
+- name: add hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '{{ ansible_hostname }}'
+    line: '127.0.0.1               {{ ansible_hostname }}'
+    state: present
