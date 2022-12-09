@@ -1,0 +1,78 @@
+---
+- name: install packages
+  community.general.xbps:
+    name: '{{item}}'
+  loop:
+      # Shell
+      - go # programming language
+      - exa # powerful ls
+      - lsd # another powerful ls
+      - bc # maths
+      - jq # json processor
+      - most # colorized pager
+      - bat # colorized cat
+      - tree
+      - screen # terminal multiplexer
+      - expect # automation tool
+      - glow # render markdown cli
+      - tiny # irc client
+      - termdown # cli countdown timer
+      - nnn # terminal file manager
+      # System
+      - xtools # helpers for working with XBPS
+      - htop # system monitor
+      - net-tools # netstat
+      - mtr # ping/traceroute diag tool
+      - fwupd # dell firmware updater
+      - nmap # port scanner
+      - tcpdump # packet analyzer
+      - whois # query registry
+      - stress # stress test tool
+      - efivar # tool to manipulate efi vars
+      - vsv # list runit services
+      # Disk
+      - iotop # disk "top"
+      - ncdu # disk usage analyzer
+      - smartmontools # S.M.A.R.T Monitoring Tools
+      # Network
+      - nethogs # net "top"
+      - openssh
+      - sshpass # allow ansible -k
+      - sshuttle # vpn through ssh
+      - fuse-sshfs # mount a remote filesystem using SFTP
+      - keychain # ssh-agent wrapper
+      - wget # downloader
+      - bind-utils # dns tools
+      - openbsd-netcat # network utility
+      - speedtest-cli
+      # Utils
+      - at # scheduler
+      - borg # backup utility
+      - borgmatic # backup utility automation
+      - pwgen # random password generator
+      - gopass # unix password manager
+      - gopass-jsonapi
+      - pinentry-gtk # gtk gpg pinentry
+      - rsync # sync tool
+      - syncthing # sync tool
+      - rclone # sync tool
+      - vdirsyncer # sync tool
+      - khard # cli contacts manager
+      - khal # cli calendar manager
+      - fzf # fuzzy finder
+      - neofetch
+      - unzip # uncompress zip
+      - cifs-utils
+      - shellcheck # sh linter
+      - pastel # color viewer
+      - python-pip # python2 package manager
+      - python3-pip # python3 package manager
+      - python3-netaddr # ipmath for ansible
+      - dmidecode # dump dmi table content
+      - oath-toolkit # otp tool
+      - pastebinit # pastebin wrapper
+      - zim # wiki app
+      - ipcalc # ipv4 network calculator
+      - pre-commit # git pre-commit hooks manager
+      - pv # progress bar
+      - lzop # compression tool

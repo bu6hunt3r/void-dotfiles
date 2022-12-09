@@ -1,0 +1,189 @@
+### Variables ###
+
+# Logo key
+set $mod Mod4
+
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+
+# Workspace names
+set $ws1 1
+set $ws2 2
+set $ws3 3
+set $ws4 4
+set $ws5 5
+set $ws6 6
+
+# Set primary and secondary monitor
+set $output-secondary eDP-1
+set $output-primary DP-7
+
+# Terminal emulator
+set $term kitty
+
+# Borders
+default_border pixel 2
+default_floating_border pixel 2
+hide_edge_borders none
+smart_borders on
+smart_gaps on
+gaps inner 10
+
+input * {
+    xkb_layout "de"
+    #xkb_options grp:shift_caps_toggle
+}
+
+input "1267:41:Elan_Touchpad" {
+    dwt enabled
+    tap enabled
+    natural_scroll enabled
+    middle_emulation enabled
+}
+
+# Drag floating windows by holding down $mod and left mouse button.
+# Resize them with right mouse button + $mod.
+# Despite the name, also works for non-floating windows.
+# Change normal to inverse to use left mouse button for resizing and right
+# mouse button for dragging.
+# floating_modifier $mod normal
+workspace 1 output $output-secondary
+workspace 2 output $output-secondary
+workspace 3 output $output-secondary
+workspace 4 output $output-primary
+workspace 5 output $output-primary
+workspace 6 output $output-primary
+
+### Window rules ###
+
+# Link some programs to workspaces (swaymsg -t get_tree)
+assign [app_id="firefox"] workspace 1
+
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [app_id="lximage-qt"] floating enable
+
+for_window [app_id="firefox"] inhibit_idle fullscreen
+for_window [class="feh"] floating enable
+
+### Key bindings ###
+
+# Swaylock lock screen
+bindsym --to-code $mod+Escape exec swaylock -c "000b1e" --ring-color="ea00d9" --key-hl-color="ea00d9"
+
+# Reload the configuration file
+bindsym --to-code $mod+Shift+r reload
+
+# Start a terminal
+bindsym --to-code $mod+Return exec $term
+
+# Kill focused window
+bindsym --to-code $mod+q kill
+
+# Start browser
+#bindsym --to-code $mod+w exec $browser
+
+# Move your focus around
+bindsym --to-code $mod+h focus left
+bindsym --to-code $mod+j focus down
+bindsym --to-code $mod+k focus up
+bindsym --to-code $mod+l focus right
+
+# Or use $mod+[up|down|left|right]
+bindsym --to-code $mod+Left focus left
+bindsym --to-code $mod+Down focus down
+bindsym --to-code $mod+Up focus up
+bindsym --to-code $mod+Right focus right
+
+# Move the focused window with the same, but add Shift
+bindsym --to-code $mod+Shift+$left move left
+bindsym --to-code $mod+Shift+$down move down
+bindsym --to-code $mod+Shift+$up move up
+bindsym --to-code $mod+Shift+$right move right
+
+# Ditto, with arrow keys
+bindsym --to-code $mod+Shift+Left move left
+bindsym --to-code $mod+Shift+Down move down
+bindsym --to-code $mod+Shift+Up move up
+bindsym --to-code $mod+Shift+Right move right
+
+# Switch to workspace
+bindsym --to-code $mod+1 workspace $ws1
+bindsym --to-code $mod+2 workspace $ws2
+bindsym --to-code $mod+3 workspace $ws3
+bindsym --to-code $mod+4 workspace $ws4
+bindsym --to-code $mod+5 workspace $ws5
+bindsym --to-code $mod+6 workspace $ws6
+
+# Move focused container to workspace
+bindsym --to-code $mod+Shift+1 move container to workspace $ws1
+bindsym --to-code $mod+Shift+2 move container to workspace $ws2
+bindsym --to-code $mod+Shift+3 move container to workspace $ws3
+bindsym --to-code $mod+Shift+4 move container to workspace $ws4
+bindsym --to-code $mod+Shift+5 move container to workspace $ws5
+bindsym --to-code $mod+Shift+6 move container to workspace $ws6
+
+# Start rofi launcher
+bindsym --to-code $mod+d exec rofi -show drun -show-icons
+bindsym --to-code alt+w exec rofi -show window -show-icons
+
+bar {
+    swaybar_command waybar
+}
+
+# bar {
+#     position bottom
+
+#     # When the status_command prints a new line to stdout, swaybar updates.
+#     # The default just shows the current date and time.
+#     status_command while date +'%Y-%m-%d %l:%M:%S %p'; do sleep 1; done
+
+#     colors {
+#         statusline #ffffff
+#         background #323232
+#         inactive_workspace #32323200 #32323200 #5c5c5c
+#     }
+# }
+
+exec pipewire
+
+# Sreen brightness controls
+bindsym --to-code XF86MonBrightnessUp exec brightnessctl -q set +2% # increase screen brightness
+bindsym --to-code XF86MonBrightnessDown exec brightnessctl -q set 2%- # decrease screen brightness
+
+# Audio controls
+bindsym XF86AudioRaiseVolume exec "pw-volume change +2.5%; pkill -RTMIN+8 waybar"
+bindsym XF86AudioLowerVolume exec "pw-volume change -2.5%; pkill -RTMIN+8 waybar"
+bindsym XF86AudioMute exec "pw-volume mute toggle; pkill -RTMIN+8 waybar"
+
+# Theme
+#
+# Note: I only really need border for the current focused window, so the inactive broder is set to background color. If you want a more visible vorder, replace #000b1e with #0abdc6 (for example) on client.[focused_inactive|unfocused]
+default_border pixel 1
+default_floating_border pixel 1
+
+client.focused          #ea00d9 #ea00d9 #000b1e #ea00d9 #ea00d9
+client.focused_inactive #000b1e #000b1e #0abdc6 #000b1e #000b1e
+client.unfocused                #000b1e #000b1e #0abdc6 #000b1e #000b1e
+client.urgent           #ff0000 #ff0000 #000b1e #ff0000 #ff0000
+client.placeholder      #000b1e #000b1e #0abdc6 #000b1e #000b1e
+
+# Cursor
+seat seat0 xcursor_theme Breeze-Hacked 28
+
+# inactive windows
+exec_always python ~/.config/sway/inactive-windows.py
+
+# wallpaper
+exec_always swaybg -o \* -i ~/.config/sway/darkwing.jpg -m fill
+
+# when going idle
+for_window [app_id="lock_term"] fullscreen global;
+
+exec swayidle -w \
+        timeout 45 'foot --app-id=lock_term unimatrix -t 75'

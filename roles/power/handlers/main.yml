@@ -1,0 +1,7 @@
+---
+- name: restart tlp
+  community.general.runit:
+    name: tlp
+    enabled: yes
+    state: restarted
+  become: yes

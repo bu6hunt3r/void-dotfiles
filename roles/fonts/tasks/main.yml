@@ -1,0 +1,43 @@
+---
+- name: install packages
+  community.general.xbps:
+    name: '{{ item }}'
+  loop:
+    - font-fira-ttf
+    - font-fira-otf
+    - fonts-croscore-ttf
+    - fonts-roboto-ttf
+    - google-fonts-ttf
+    - noto-fonts-emoji
+    - noto-fonts-ttf
+    - font-awesome6
+    - font-awesome5
+
+### Jetbrains
+
+- name: stat jetbrains font
+  stat:
+    path: /usr/share/fonts/TTF/JetBrainsMono-Regular.ttf
+  register: jetbrains
+
+- name: create font dir
+  file:
+    path: /tmp/jetbrains
+    state: directory
+  when: jetbrains.stat.islnk is not defined
+
+- name: download jetbrains font
+  unarchive:
+    src: https://download.jetbrains.com/fonts/JetBrainsMono-2.001.zip
+    dest: /tmp/jetbrains/
+    remote_src: yes
+    creates: /tmp/jetbrains/ttf
+  when: jetbrains.stat.islnk is not defined
+  
+- name: install Jetbrains font
+  copy:
+    src: '{{ item }}'
+    dest: /usr/share/fonts/TTF/
+    remote_src: yes
+  with_fileglob: /tmp/jetbrains/ttf/*
+  when: jetbrains.stat.islnk is not defined

@@ -1,0 +1,14 @@
+- name: Deploy dotfiles / requisites
+  hosts: localhost
+  connection: local
+  vars:
+    user: user
+    shell: /usr/bin/bash
+  roles:
+    # - base
+    - dotfiles
+    # - runit
+    # - desktop
+    # - acpi
+    # - fonts
+    # - power

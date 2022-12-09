@@ -1,0 +1,61 @@
+---
+- name: Install desktop packages
+  community.general.xbps:
+    name: '{{ item }}'
+  loop:
+    # DE
+    - sway # wayland w compositor
+    - swaybg # background manager for sway
+    - swaylock # session locker
+    - Waybar # bar for sway
+    - grim # screenshots
+    - wl-clipboard # clipboard manager
+    - wdisplays # arandr for wayland
+    - wofi # rofi for wayland
+    - brightnessctl # brightness manager
+    - qt5-wayland # enable qt5 waylnad backend
+    - swayidle
+    - xdg-user-dirs
+    - xdg-utils
+    - glfw-wayland
+    - dumb_runtime_dir # XDG_RUNTIME_DIR when seatd
+    - wlsunset # day/night gamma adjustments
+    - python3-i3ipc
+    # VIDEO
+    - mesa # DRI 3D ACCELERATION
+    - mesa-dri # DRI 3D ACCELERATION
+    - intel-media-driver # intel driver iHD
+    - libva-utils # hardware video acceleration
+    # AUDIO
+    - pipewire # audio server
+    - alsa-pipewire
+    - wireplumber
+    #- libao-pulse # fix bt for pipewire
+    - pavucontrol # pulseaudio ui
+    - pulseaudio-utils
+    - pamixer # alsa ui
+    # Graphical apps
+    - imv # img visualizer
+    - kitty # terminal emulator
+    - firefox-i18n-de
+    - mpv # video player
+    - papirus-icon-theme # icon thee
+  become: yes
+
+- name: configure pipewire alsa
+  file:
+    path: /etc/alsa/conf.d
+    state: directory
+    recurse: yes
+  become: yes
+
+- name: symlink pipewire alsa
+  file:
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: link
+  loop:
+    - { src: /usr/share/alsa/alsa.conf.d/50-pipewire.conf, dest: /etc/alsa/conf.d/50-pipewire.conf }
+    - { src: /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf, dest: /etc/alsa/conf.d/99-pipewire-default.conf }
+  become: yes
+      
