@@ -1,18 +1,34 @@
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-
-### ZFS root install
-
-- Native encryption aes-256-gcm
-- Zstd compression on all datasets
-- Boot Environments managed with [zfsbootmenu](https://github.com/zdykstra/zfsbootmenu)
-- No swap
+### Devops'd void dotfiles using Ansible
 
 ### Install
 
 - Clone me
 ```
-git clone https://github.com/eoli3n/void-config
+git clone https://github.com/bu6hunt3r
 ```
-- Run OS installer at [scripts/install/](scripts/install/)
-- Install packages and configurations with [ansible](ansible/)
-- Use [dotfiles](https://github.com/eoli3n/dotfiles)
+- Run ansible playbook and enjoy
+
+```bash
+ansible-playbook deploy.yaml --ask-become-pass
+```
+
+### Post-Installation
+
+- Ensure, that normal user is member of the following groups
+```
+wheel floppy audio video cdrom optical kvm xbuilder dbus _seatd
+```
+
+- After that, you may add the following script to `/etc/profile`:
+```bash
+if [ "$(tty)" = "/dev/tty1" ]; then
+   while true; do
+         echo -e 'start sway [y/n]: '
+         read yn
+         case $yn in
+              [Yy]*) exec dbus-run-session sway ;;
+              [Nn]*) echo "Opting out ouf sway" ; break ;;
+         esac
+   done
+fi
+```
