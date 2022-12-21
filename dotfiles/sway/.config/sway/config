@@ -50,9 +50,9 @@ input "1267:41:Elan_Touchpad" {
 # Change normal to inverse to use left mouse button for resizing and right
 # mouse button for dragging.
 # floating_modifier $mod normal
-workspace 1 output $output-secondary
-workspace 2 output $output-secondary
-workspace 3 output $output-secondary
+workspace 1 output $output-primary
+workspace 2 output $output-primary
+workspace 3 output $output-primary
 workspace 4 output $output-primary
 workspace 5 output $output-primary
 workspace 6 output $output-primary
