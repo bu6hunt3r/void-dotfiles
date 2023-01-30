@@ -18,8 +18,13 @@ set $ws5 5
 set $ws6 6
 
 # Set primary and secondary monitor
-set $output-secondary eDP-1
-set $output-primary DP-7
+set $output-primary eDP-1
+set $output-secondary DP-6
+
+# Set positions accordingly
+output $output-secondary pos 0 0 res 1920x1080
+output $output-primary pos 1920 0 res 3840x2160
+
 
 # Terminal emulator
 set $term kitty
