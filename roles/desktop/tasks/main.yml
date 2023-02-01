@@ -58,4 +58,21 @@
     - { src: /usr/share/alsa/alsa.conf.d/50-pipewire.conf, dest: /etc/alsa/conf.d/50-pipewire.conf }
     - { src: /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf, dest: /etc/alsa/conf.d/99-pipewire-default.conf }
   become: yes
+
+- name: append the option to load sway after login
+  blockinfile:
+    dest: /etc/profile
+    block: |
+      if [ "$(tty)" = "/dev/tty1" ]; then
+      while true; do
+         echo -e 'start sway [y/n]: '
+         read yn
+         case $yn in
+              [Yy]*) exec dbus-run-session sway ;;
+              [Nn]*) echo "Opting out ouf sway" ; break ;;
+         esac
+         done
+      fi
+
+    
       
