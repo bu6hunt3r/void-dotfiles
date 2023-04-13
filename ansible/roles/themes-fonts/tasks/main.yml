@@ -16,6 +16,7 @@
     path: /usr/share/themes/Equilux
   register: equilux
 
+  
 - name: download equilux theme
   unarchive:
     src: https://github.com/ddnexus/equilux-theme/archive/equilux-v20181029.tar.gz
@@ -55,6 +56,35 @@
     remote_src: yes
   with_fileglob: /tmp/jetbrains/ttf/*
   when: jetbrains.stat.islnk is not defined
+
+
+### Agave nerd font
+
+- name: stat agave font
+  stat:
+    path: /usr/share/fonts/TTF/agave regular Nerd Font Complete Mono.ttf
+  register: agave
+
+- name: create font dir
+  file:
+    path: /tmp/agave
+    state: directory
+  when: agave.stat.islnk is not defined
+  
+- name: download agave nerd font
+  unarchive:
+    src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Agave.zip
+    dest: /tmp/
+    remote_src: yes
+  when: agave.stat.islnk is not defined
+  
+- name: install agave font
+  copy:
+    src: '{{ item }}'
+    dest: /usr/share/fonts/TTF/
+    remote_src: yes
+  with_fileglob: /tmp/agave/ttf/*
+  when: agave.stat.islnk is not defined
 
 ### Cabin
 
