@@ -4,6 +4,9 @@
 # _ / /\__ \ | | | | | (__
 #(_)___|___/_| |_|_|  \___|
 
+source $HOME/.profile
+source $HOME/.nix-profile/etc/profile.d/nix.sh
+export IHP_EDITOR="$HOME/bin/emacs-line"
 source <(antibody init)
 antibody bundle < ~/.zsh_plugins
 
@@ -147,6 +150,9 @@ using $Yellow${0}$Purple ${DOT_PROMPT_CHAR:-$}${Rst}"'
 
 alias tarc='tar -zcvf'
 alias tarx='tar -zxvf'
+
+alias sudo='doas'
+
 if [[ -z `command grc` ]]; then
     echo "grc is not installed. grc aliases will be ignored."
 else
@@ -323,3 +329,7 @@ extract () {
         echo "'$1′ is not a valid file!"
      fi
 }
+
+# Created by `pipx` on 2023-03-03 13:36:28
+export PATH="$PATH:/home/void/.local/bin"
+eval "$(direnv hook zsh)"

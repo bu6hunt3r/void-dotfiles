@@ -27,6 +27,12 @@ output $output-secondary pos 1920 0 res 3840x2160
 
 # Terminal emulator
 set $term kitty
+bindsym $mod+return exec $term
+
+# with prompt
+bindsym $mod+p exec i3-quickterm
+# always pop standard shell, without the menu
+bindsym $mod+minus exec i3-quickterm shell
 
 bindsym $mod+s layout stacking
 
@@ -191,7 +197,7 @@ bindsym --to-code XF86MonBrightnessDown exec brightnessctl -q set 2%- # decrease
 bindsym XF86AudioRaiseVolume exec "pw-volume change +2.5%; pkill -RTMIN+8 waybar"
 bindsym XF86AudioLowerVolume exec "pw-volume change -2.5%; pkill -RTMIN+8 waybar"
 bindsym XF86AudioMute exec "pw-volume mute toggle; pkill -RTMIN+8 waybar"
-
+bindsym XF86AudioPlay exec "playerctl play-pause"
 # Theme
 #
 # Note: I only really need border for the current focused window, so the inactive broder is set to background color. If you want a more visible vorder, replace #000b1e with #0abdc6 (for example) on client.[focused_inactive|unfocused]
@@ -211,7 +217,7 @@ seat seat0 xcursor_theme Breeze-Hacked 28
 exec_always python ~/.config/sway/inactive-windows.py
 
 # wallpaper
-exec_always swaybg -o \* -i ~/.config/sway/darkwing.jpg -m fill
+exec_always swaybg -o \* -i ~/.config/sway/pse.png -m fill
 
 # when going idle
 for_window [app_id="lock_term"] fullscreen global;
@@ -221,3 +227,6 @@ exec swayidle -w \
 
 # redshift
 exec gammastep -l 50.6:6.9 -t 5700:3600 -g 0.8
+
+# mako
+exec mako
