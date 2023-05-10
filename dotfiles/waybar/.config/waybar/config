@@ -53,12 +53,14 @@
     "exec": "pw-volume status",
     "format": "{icon} {percentage}%",
     "return-type": "json",
-    "interval": 5,
+    "interval": 1,
     "signal": 8,
     "format-icons": {
         "mute": "",
         "default": ["", "", ""]
     },
+    "on-scroll-up": "pw-volume change +5%",
+    "on-scroll-down": "pw-volume change -5%",
     "tooltip": false
   },
   "tray": {

@@ -333,3 +333,11 @@ extract () {
 # Created by `pipx` on 2023-03-03 13:36:28
 export PATH="$PATH:/home/void/.local/bin"
 eval "$(direnv hook zsh)"
+
+# pnpm
+export PNPM_HOME="/home/void/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

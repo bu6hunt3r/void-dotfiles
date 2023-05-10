@@ -29,6 +29,11 @@ output $output-secondary pos 1920 0 res 3840x2160
 set $term kitty
 bindsym $mod+return exec $term
 
+# scratchpad
+bindsym $mod+Ctrl+Shift+minus move scratchpad
+bindsym $mod+Ctrl+minus scratchpad show
+
+
 # with prompt
 bindsym $mod+p exec i3-quickterm
 # always pop standard shell, without the menu
@@ -108,11 +113,12 @@ for_window [app_id="lximage-qt"] floating enable
 for_window [app_id="firefox"] inhibit_idle fullscreen
 for_window [class="feh"] floating enable
 
+
 ### Key bindings ###
 
 # Swaylock lock screen
 # bindsym --to-code $mod+Escape exec swaylock -c "000b1e" --ring-color="ea00d9" --key-hl-color="ea00d9"
-bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/octa.png --ring-color="ea00d9" --key-hl-color="ea00d9"
+bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/purple.jpg --ring-color="ea00d9" --key-hl-color="ea00d9"
 
 # Reload the configuration file
 bindsym --to-code $mod+Shift+r reload
@@ -195,10 +201,14 @@ bindsym --to-code XF86MonBrightnessUp exec brightnessctl -q set +2% # increase s
 bindsym --to-code XF86MonBrightnessDown exec brightnessctl -q set 2%- # decrease screen brightness
 
 # Audio controls
-bindsym XF86AudioRaiseVolume exec "pw-volume change +2.5%; pkill -RTMIN+8 waybar"
-bindsym XF86AudioLowerVolume exec "pw-volume change -2.5%; pkill -RTMIN+8 waybar"
+# bindsym XF86AudioRaiseVolume exec "pw-volume change +2.5%; pkill -RTMIN+8 waybar"
+# bindsym XF86AudioLowerVolume exec "pw-volume change -2.5%; pkill -RTMIN+8 waybar"
+# bindsym XF86AudioMute exec "pw-volume mute toggle; pkill -RTMIN+8 waybar"
+bindsym XF86AudioRaiseVolume exec "wpctl set-volume 2.5%+; pkill -RTMIN+8 waybar"
+bindsym XF86AudioLowerVolume exec "wpctl set-volume 2.5%-; pkill -RTMIN+8 waybar"
 bindsym XF86AudioMute exec "pw-volume mute toggle; pkill -RTMIN+8 waybar"
 bindsym XF86AudioPlay exec "playerctl play-pause"
+
 # Theme
 #
 # Note: I only really need border for the current focused window, so the inactive broder is set to background color. If you want a more visible vorder, replace #000b1e with #0abdc6 (for example) on client.[focused_inactive|unfocused]
@@ -218,7 +228,7 @@ seat seat0 xcursor_theme Breeze-Hacked 28
 exec_always python ~/.config/sway/inactive-windows.py
 
 # wallpaper
-exec_always swaybg -o \* -i ~/.config/sway/octa.png -m fill
+exec_always swaybg -o \* -i ~/.config/sway/purple.jpg -m fill
 
 # when going idle
 for_window [app_id="lock_term"] fullscreen global;
@@ -231,3 +241,6 @@ exec gammastep -l 50.6:6.9 -t 5700:3600 -g 0.8
 
 # mako
 exec mako
+
+# disable internal monitor
+bindsym $mod+m output "eDP-1" toggle
