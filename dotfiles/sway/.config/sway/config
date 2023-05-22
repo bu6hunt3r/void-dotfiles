@@ -30,7 +30,7 @@ set $term kitty
 bindsym $mod+return exec $term
 
 # scratchpad
-bindsym $mod+Ctrl+Shift+minus move scratchpad
+bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+Ctrl+minus scratchpad show
 
 
@@ -173,9 +173,10 @@ bindsym --to-code $mod+Shift+5 move container to workspace $ws5
 bindsym --to-code $mod+Shift+6 move container to workspace $ws6
 
 # Start rofi launcher
-bindsym --to-code $mod+d exec rofi -show drun -show-icons
-bindsym --to-code alt+w exec rofi -show window -show-icons
-
+# bindsym --to-code $mod+d exec wofi -monitor -5 -show drun -show-icons
+# bindsym --to-code alt+w exec wofi -monitor -5 -show window -show-icons
+bindsym --to-code $mod+d exec wofi -show drun -s ~/.config/wofi/style.css
+bindsym --to-code alt+w exec wofi -show drun -s ~/.config/wofi/style.css
 bar {
     swaybar_command waybar
 }
@@ -225,7 +226,8 @@ client.placeholder      #000b1e #000b1e #0abdc6 #000b1e #000b1e
 seat seat0 xcursor_theme Breeze-Hacked 28
 
 # inactive windows
-exec_always python ~/.config/sway/inactive-windows.py
+# exec_always python ~/.config/sway/inactive-windows.py
+exec_always python ~/.config/sway/swayfader.py
 
 # wallpaper
 exec_always swaybg -o \* -i ~/.config/sway/purple.jpg -m fill
@@ -240,7 +242,11 @@ exec swayidle -w \
 exec gammastep -l 50.6:6.9 -t 5700:3600 -g 0.8
 
 # mako
+exec_always dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/bus
 exec mako
 
 # disable internal monitor
 bindsym $mod+m output "eDP-1" toggle
+
+# exec kanshi / autorandr equivalent for wayland
+exec_always kanshi

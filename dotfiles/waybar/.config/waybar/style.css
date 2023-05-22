@@ -12,72 +12,71 @@ window#waybar {
   color: #ea00d9;
 }
 
+#workspaces {
+margin: 10px;
+  margin-top: 4px;
+  padding: 7px;
+  padding-left: 4px;
+  border-radius: 50px;
+  background-color: #232a2d;
+  font-size: 12px;
+}
+
 #workspaces button {
-  padding: 0 5px;
-  background: transparent;
-  color: #ea00d9;
-  border-bottom: 1px solid transparent;
+  color: #430d2e;
+   padding: 2px 7px;
+}
+
+#workspaces button:hover {
+  background: #232a2d;
 }
 
 #workspaces button.focused {
-  background: #000b1e;
   color: #ea00d9;
-  border-bottom: 1px solid #ea00d9;
 }
 
-#cpu,
-#memory,
-#pulseaudio,
-#network,
-#battery,
-#clock,
-#custom-playerctl,
-#temperature {
-  padding: 0 10px;
-  margin: 0 5px;
+#clock {
+    font-size: 1.0em;
+    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-#battery.charging {
-  color: #689d6a;
+#battery {
+    font-size: 1.0em;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-#battery.warning:not(.charging) {
-  color: #d79921;
+#memory {
+    margin-top: 20px;
+    font-size: 1.0em;
+    margin-bottom: 20px;
 }
 
-@keyframes blink {
-  to {
-    background-color: #1d2021;
-    color: #ebdbb2;
-  }
+#custom-pipewire {
+    font-size: 1.0em;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-#battery.critical:not(.charging) {
-  background: #cc241d;
-  color: #ebdbb2;
-  border-bottom: 1px solid #ebdbb2;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+#custom-power {
+    color: #141b1e;
+    background-color: #e57474;
+    font-size: 15px;
+    border-radius: 10px;
+    padding: 10px 0px;
+    margin: 0px 10px;
+    margin-bottom: 5px;
 }
 
-#temperature.critical {
-  background: #cc241d;
-  color: #ebdbb2;
-  border-bottom: 1px solid #ebdbb2;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-#network.disconnected {
-  color: #cc241d;
-}
-
-#pulseaudio.muted {
-  color: #cc241d;
+#custom-void {
+    font-family: "Iosevka Nerd Font";
+    color: #141b1e;
+    background-color: #8ccf7e;
+    font-size: 15px;
+    border-radius: 10px;
+    padding: 10 0px;
+    margin: 0 10px;
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
