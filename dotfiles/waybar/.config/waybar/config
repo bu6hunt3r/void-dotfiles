@@ -1,6 +1,6 @@
 {
     "position": "left",
-    "modules-left": ["sway/workspaces"],
+    "modules-left": ["tray", "sway/workspaces"],
     "modules-right": ["battery", "custom/separator", "custom/pipewire", "custom/separator", "memory", "custom/separator", "clock", "custom/separator", "custom/power"],
     "sway/workspaces": {
         "all-outputs": true,
@@ -52,5 +52,8 @@
     "format": "{icon} {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "tooltip": false
+  },
+  "tray": {
+    "icon-size": 20,
   },
 }

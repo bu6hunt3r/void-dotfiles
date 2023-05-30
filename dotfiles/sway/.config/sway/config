@@ -91,7 +91,8 @@ input "1267:41:Elan_Touchpad" {
 # Despite the name, also works for non-floating windows.
 # Change normal to inverse to use left mouse button for resizing and right
 # mouse button for dragging.
-# floating_modifier $mod normal
+floating_modifier $mod normal
+
 workspace 1 output $output-primary
 workspace 2 output $output-primary
 workspace 3 output $output-primary
@@ -112,7 +113,7 @@ for_window [app_id="lximage-qt"] floating enable
 
 for_window [app_id="firefox"] inhibit_idle fullscreen
 for_window [class="feh"] floating enable
-
+for_window [class="Emacs"] opacity 0.1
 
 ### Key bindings ###
 
