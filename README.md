@@ -31,9 +31,9 @@ wheel floppy audio video cdrom optical kvm xbuilder dbus _seatd
 ```
 ### Initial setup via ansible
 
-- At first you'd have to install git and clone this repo
+- At first you'd have to install ansible & git and clone this repo
 ```
-# xbps-install -Su && xbps-install git
+# xbps-install -Su && xbps-install git ansible
 # git clone https://github.com/bu6hunt3r/void-dotfiles
 ```
 
