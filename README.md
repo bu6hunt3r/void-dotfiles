@@ -14,6 +14,17 @@ ansible-playbook deploy.yaml --ask-become-pass
 
 ### Post-Installation
 
+#### Set console font
+
+Check for available fonts
+```
+# ls /usr/share/kbd/consolefonts/ | grep 32
+latarcyrheb-sun32.psfu.gz
+```
+And afterthat you can set it via:
+```
+# setfont latarcyrheb-sun32
+```
 - Ensure, that normal user is member of the following groups
 ```
 wheel floppy audio video cdrom optical kvm xbuilder dbus _seatd
