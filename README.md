@@ -16,18 +16,25 @@ ansible-playbook deploy.yaml --ask-become-pass
 
 #### Set console font
 
-Check for available fonts
+- Check for available fonts
 ```
 # ls /usr/share/kbd/consolefonts/ | grep 32
 latarcyrheb-sun32.psfu.gz
 ```
-And afterthat you can set it via:
+- And afterthat you can set it via:
 ```
 # setfont latarcyrheb-sun32
 ```
 - Ensure, that normal user is member of the following groups
 ```
 wheel floppy audio video cdrom optical kvm xbuilder dbus _seatd
+```
+### Initial setup via ansible
+
+- At first you'd have to install git and clone this repo
+```
+# xbps-install -Su && xbps-install git
+# git clone https://github.com/bu6hunt3r/void-dotfiles
 ```
 
 - After that, you may add the following script to `/etc/profile`:
