@@ -59,6 +59,14 @@
     - { src: /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf, dest: /etc/alsa/conf.d/99-pipewire-default.conf }
   become: yes
 
+- name: enable wireplumber service
+  file:
+    src: "/etc/sv/wireplumber"
+    dest: "var/service/wireplumber"
+    state: link
+  become: yes
+  tags: wireplumber
+
 - name: append the option to load sway after login
   blockinfile:
     dest: /etc/profile

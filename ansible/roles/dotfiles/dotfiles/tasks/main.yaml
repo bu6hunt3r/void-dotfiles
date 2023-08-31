@@ -1,0 +1,50 @@
+- name: Ensure stow installed
+  community.general.xbps: name=stow state=present
+  become: yes
+  
+- name: Ensure zsh installed
+  community.general.xbps: name=zsh state=present
+  become: yes
+
+- name: Ensure curl installed
+  community.general.xbps: name=curl state=present
+  become: yes
+
+- name: Install zsh-plugin manager antibody
+  community.general.xbps: name=antibody state=present
+  become: yes
+
+
+- name: Ensure fzf installed
+  community.general.xbps: name=fzf state=present
+  become: yes
+
+- name: Ensure grc insalled
+  community.general.xbps: name=grc state=present
+  become: yes
+
+- name: Ensure tree insalled
+  community.general.xbps: name=tree state=present
+  become: yes
+
+- name: Ensure tmux insalled
+  community.general.xbps: name=tmux state=present
+  become: yes
+
+- name: Build directories list
+  find:
+    paths: [dotfiles/]
+    recurse: no
+    file_type: directory
+  register: files
+
+- name: Deploy dotfiles
+  with_items: '{{ files.files }}'
+  shell: |
+    STOW_PATH={{ item.path | replace("dotfiles/", "") }}
+    OVERRIDE=$(cat ${STOW_PATH}/.override 2>/dev/null)
+    VOID_HOME=$(getent passwd void | cut -d: -f6)
+    stow -v --ignore "\.override" -t ${OVERRIDE:-$VOID_HOME} ${STOW_PATH}
+  args:
+    chdir: ./dotfiles
+    executable: /bin/bash

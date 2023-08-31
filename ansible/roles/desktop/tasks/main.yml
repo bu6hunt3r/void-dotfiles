@@ -30,6 +30,7 @@
       - glfw-wayland
       - pam_rundir # XDG_RUNTIME_DIR when seatd
       - wlsunset # day/night gamma adjustments
+      - python3-i3ipc
       # Video
       - mesa # DRI 3D acceleration
       - mesa-dri # DRI 3D acceleration
@@ -119,3 +120,60 @@
   loop:
     - { src: /usr/share/alsa/alsa.conf.d/50-pipewire.conf, dest: /etc/alsa/conf.d/50-pipewire.conf }
     - { src: /usr/share/alsa/alsa.conf.d/99-pipewire-default.conf, dest: /etc/alsa/conf.d/99-pipewire-default.conf }
+
+- name: Install seat daemon
+  tags: service 
+  community.general.xbps:
+    name: seatd
+
+- name: Enable seat daemon
+  become: yes
+  tags: service
+  file:
+    src: "/etc/sv/seatd"
+    dest: "/var/service/seatd"
+    state: link
+
+- name: Install dbus daemon
+  tags: service 
+  community.general.xbps:
+    name: dbus
+
+- name: Enable dbus daemon
+  become: yes
+  tags: service
+  file:
+    src: "/etc/sv/dbus"
+    dest: "/var/service/dbus"
+    state: link
+
+- name: Add user '{{user}}' to _seatd group
+  tags: service
+  user:
+    name: '{{user}}'
+    groups: _seatd
+    append: yes
+
+- name: Install elgind daemon
+  tags: service 
+  community.general.xbps:
+    name: elogind
+
+- name: Enable elogind daemon
+  become: yes
+  tags: service
+  file:
+    src: "/etc/sv/elogind"
+    dest: "/var/service/elogind"
+    state: link
+
+- name: Install doas
+  community.general.xbps:
+    name: opendoas
+
+- name: Create doas.conf
+  copy:
+    dest: "/etc/doas.conf"
+    content: | 
+      permit persist :wheel
+
