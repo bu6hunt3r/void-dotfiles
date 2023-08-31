@@ -26,4 +26,4 @@
     # - { role: containers, tags: containers }
     # - { role: zfs, tags: zfs }
     # - { role: acpi, tags: acpi }
-    # - { role: dotfiles, tags: dotfiles }
+    - { role: dotfiles, tags: dotfiles }

@@ -1,6 +1,4 @@
 waybar
-pipewire
-inactive_windows
-doas
 fonts
 wofi
+configure notify-send notifications

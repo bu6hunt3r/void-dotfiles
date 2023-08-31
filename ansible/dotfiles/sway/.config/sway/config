@@ -197,6 +197,7 @@ bar {
 # }
 
 exec pipewire
+exec wireplumber
 
 # Sreen brightness controls
 bindsym --to-code XF86MonBrightnessUp exec brightnessctl -q set +2% # increase screen brightness
