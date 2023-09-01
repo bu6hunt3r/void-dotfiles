@@ -47,3 +47,20 @@
     cargo install pw-volume
   become: yes
   become_user: '{{user}}'
+
+- name: Clone crafted-emacs repository
+  git:
+    repo: https://github.com/SystemCrafters/crafted-emacs.git
+    dest: /home/{{user}}/.emacs.d
+    clone: yes
+    update: no
+
+- name: Clone yasnippet repository
+  git:
+    repo: https://github.com/joaotavora/yasnippet.git
+    dest: /home/{{user}}/.emacs.d/yasnippet
+    clone: yes
+    update: no
+  become: yes
+  become_user: '{{user}}'
+

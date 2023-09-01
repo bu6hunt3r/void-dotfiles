@@ -48,3 +48,12 @@
   args:
     chdir: ./dotfiles
     executable: /bin/bash
+
+- name: Clone crafted-emacs repository
+  git:
+    repo: https://github.com/SystemCrafters/crafted-emacs.git
+    dest: /home/'{{user}}'/.emacs.d
+    clone: yes
+    update: yes
+  tags: 
+    - emacs

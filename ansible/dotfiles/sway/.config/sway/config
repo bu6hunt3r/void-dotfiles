@@ -245,7 +245,7 @@ exec gammastep -l 50.6:6.9 -t 5700:3600 -g 0.8
 
 # mako
 exec_always dbus-daemon --session --address=unix:path=$XDG_RUNTIME_DIR/bus
-exec mako
+exec_always mako -c /home/void/.config/mako/config
 
 # disable internal monitor
 bindsym $mod+m output "eDP-1" toggle

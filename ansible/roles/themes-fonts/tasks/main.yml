@@ -114,3 +114,32 @@
     remote_src: yes
   with_fileglob: /tmp/cabin/Cabin-master/fonts/OTF/*
   when: cabin.stat.islnk is not defined
+    
+### Mononoki
+
+- name: stat mononoki font
+  stat:
+    path: /usr/share/fonts/OTF/mononoki-Regular.otf
+  register: mononoki
+
+- name: create font dir
+  file:
+    path: /tmp/mononoki
+    state: directory
+  when: mononoki.stat.islnk is not defined
+
+- name: download mononoki font
+  unarchive:
+    src: https://github.com/madmalik/mononoki/releases/download/1.6/mononoki.zip
+    dest: /tmp/mononoki/
+    remote_src: yes
+    creates: /tmp/mononoki/
+  when: mononoki.stat.islnk is not defined
+
+- name: install imparallari-cabin font
+  copy:
+    src: '{{ item }}'
+    dest: /usr/share/fonts/OTF/
+    remote_src: yes
+  with_fileglob: /tmp/mononoki/mononoki-Regular.otf
+  when: mononoki.stat.islnk is not defined

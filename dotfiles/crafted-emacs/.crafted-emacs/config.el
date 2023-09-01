@@ -224,4 +224,7 @@
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 [[id:d4ee00b0-fb73-4052-8c0e-9b23a4a51d3c][frida pwnadventure3]]
 (org-roam-db-autosync-mode)
+
+;; Prevent undo tree files from polluting your git repo
+(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   ;; example-config.el ends here

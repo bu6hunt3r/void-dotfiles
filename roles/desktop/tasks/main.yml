@@ -40,6 +40,8 @@
     - firefox-i18n-de
     - mpv # video player
     - papirus-icon-theme # icon thee
+    - emacs 
+    - emacs-gtk3
   become: yes
 
 - name: configure pipewire alsa
@@ -81,6 +83,7 @@
          esac
          done
       fi
+
 
     
       
