@@ -19,27 +19,25 @@
 ;; So, if you prefer Vim-style keybindings over vanilla Emacs keybindings
 ;; remove the comment in the line about `crafted-evil' below.
 
-(require 'equake)
-
 (require 'crafted-defaults)    ; Sensible default settings for Emacs
 (require 'crafted-updates)     ; Tools to upgrade Crafted Emacs
 (require 'crafted-completion)  ; selection framework based on `vertico`
                                         ;(require 'crafted-ui)          ; Better UI experience (modeline etc.)
 (require 'crafted-ide)
 ;; (require 'crafted-smtpmail)
-(require 'crafted-mu4e)
+;; (require 'crafted-mu4e)
 (require 'crafted-python)
-(require 'crafted-haskell)
-(require 'crafted-latex)
+;; (require 'crafted-haskell)
+;; (require 'crafted-latex)
 (require 'crafted-windows)     ; Window management configuration
 (require 'crafted-editing)     ; Whitspace trimming, auto parens etc.
 (require 'crafted-evil)        ; An `evil-mode` configuration
 (require 'crafted-org)         ; org-appear, clickable hyperlinks etc.
 (require 'crafted-project)     ; built-in alternative to projectile
 (require 'crafted-speedbar)    ; built-in file-tree
-(require 'crafted-screencast)  ; show current command and binding in modeline
+;; (require 'crafted-screencast)  ; show current command and binding in modeline
 (require 'crafted-compile)     ; automatically compile some emacs lisp files
-(require 'crafted-pdf-reader)
+;; (require 'crafted-pdf-reader)
 ;; Set the default face. The default face is the basis for most other
 ;; faces used in Emacs. A "face" is a configuration including font,
 ;; font size, foreground and background colors and other attributes.
@@ -180,10 +178,10 @@
 
 (setq prettify-symbols-alist '(("\\" . 955)))
 
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
-(load-file "~/.emacs.d/cdlatex.el")
-(require 'cdlatex)
+;; (load-file "~/.emacs.d/cdlatex.el")
+;; (require 'cdlatex)
 
 (setenv "PATH" (concat (getenv "PATH") ":/home/void/lean-3.4.2-linux"))
 (setq exec-path (append exec-path '("/home/void/lean-3.4.2-linux")))
@@ -195,14 +193,12 @@
 (crafted-package-install-package 'direnv)
 (direnv-mode)
 
-(add-hook 'prog-mode-hook 'yas-minor-mode)
-
 (crafted-package-install-package 'projectile)
 (crafted-package-install-package 'undo-tree)
 (global-undo-tree-mode)
 
 ;;store org-mode links to messages
-(require 'org-mu4e)
+;; (require 'org-mu4e)
 ;;store link to message if in header view, not to header query
 (setq org-mu4e-link-query-in-headers-mode nil)
 
@@ -216,15 +212,26 @@
   (add-to-list 'eglot-server-programs '(lua-mode "/home/void/dev/lua-language-server/bin/lua-language-server")))
 
 ;; org-mode pretty tables
-(progn
-  (add-to-list 'load-path "~/.emacs.d/site-lisp")
-  (require 'org-pretty-table)
-  (add-hook 'org-mode-hook (lambda () (org-pretty-table-mode))))
+;; (progn
+;;   (add-to-list 'load-path "~/.emacs.d/site-lisp")
+;;   (require 'org-pretty-table)
+;;   (add-hook 'org-mode-hook (lambda () (org-pretty-table-mode))))
 
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
-[[id:d4ee00b0-fb73-4052-8c0e-9b23a4a51d3c][frida pwnadventure3]]
-(org-roam-db-autosync-mode)
+
+(add-to-list 'load-path
+              "~/.emacs.d/yasnippet")
+(require 'yasnippet)
+(yas-global-mode 1)
+
+
+(crafted-package-install-package 'all-the-icons)
+(crafted-package-install-package 'all-the-icons-dired)
+;; (org-roam-db-autosync-mode)
 
 ;; Prevent undo tree files from polluting your git repo
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+
+(crafted-package-install-package 'haskell-mode)
+
   ;; example-config.el ends here
