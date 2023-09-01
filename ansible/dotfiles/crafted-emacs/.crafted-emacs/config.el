@@ -232,4 +232,6 @@
 ;; Prevent undo tree files from polluting your git repo
 (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 
+(crafted-package-install-package 'haskell-mode)
+
   ;; example-config.el ends here

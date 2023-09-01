@@ -21,6 +21,7 @@
     - dumb_runtime_dir # XDG_RUNTIME_DIR when seatd
     - wlsunset # day/night gamma adjustments
     - python3-i3ipc
+    - haskell-language-server
     # VIDEO
     - mesa # DRI 3D ACCELERATION
     - mesa-dri # DRI 3D ACCELERATION
@@ -83,6 +84,7 @@
          esac
          done
       fi
+
 
 
     
