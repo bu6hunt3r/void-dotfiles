@@ -1,4 +1,2 @@
-waybar
-fonts
-wofi
 configure notify-send notifications
+wofi terminal

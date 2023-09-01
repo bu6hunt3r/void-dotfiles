@@ -6,5 +6,5 @@ other_sink_id=$(pw-dump Node Device | jq '.[].info.props|select(."api.alsa.pcm.s
 
 echo $default_sink_id
 echo $other_sink_id
-#wpctl set-default $other_sink_id
-#notify-send "Changed default audio sink to $other_sink_id"
+wpctl set-default $other_sink_id
+notify-send "Changed default audio sink to $other_sink_id"
