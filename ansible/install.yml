@@ -16,7 +16,7 @@
   roles:
     # - { role: base, tags: base }
     # - { role: kernel, tags: kernel}
-    - { role: desktop, tags: emacs }
+    # - { role: desktop, tags: emacs }
     # - { role: flatpak, tags: flatpak }
     # - { role: temp, tags: temp }
     # - { role: runit, tags: runit }
@@ -26,4 +26,4 @@
     # - { role: containers, tags: containers }
     # - { role: zfs, tags: zfs }
     # - { role: acpi, tags: acpi }
-    # - { role: dotfiles, tags: emacs }
+    - { role: dotfiles, tags: emacs }
