@@ -31,6 +31,7 @@
       - pam_rundir # XDG_RUNTIME_DIR when seatd
       - wlsunset # day/night gamma adjustments
       - python3-i3ipc
+      - zathura
       # Video
       - mesa # DRI 3D acceleration
       - mesa-dri # DRI 3D acceleration

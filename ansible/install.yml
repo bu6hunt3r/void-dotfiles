@@ -16,7 +16,7 @@
   roles:
     # - { role: base, tags: base }
     # - { role: kernel, tags: kernel}
-    # - { role: desktop, tags: emacs }
+    - { role: desktop, tags: emacs }
     # - { role: flatpak, tags: flatpak }
     # - { role: temp, tags: temp }
     # - { role: runit, tags: runit }
