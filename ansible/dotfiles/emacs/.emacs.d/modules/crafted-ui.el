@@ -181,11 +181,16 @@ Used as hook for modes which should not display line numebrs."
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 
 ;; ;; Open files from dired-mode via shortcut
-(defun dired-open-file ()
-  "In dired, open the file named on this line."
-  (interactive)
-  (let* ((file (dired-get-filename nil t)))
-    (call-process "xdg-open" nil 0 nil file)))
+(crafted-package-install-package 'openwith)
+
+(when (require 'openwith nil 'oerror)
+  (setq openwith-associations
+        (list
+         (list (openwith-make-extension-regexp
+                '("pdf" "ps" "ps.gz" "dvi"))
+               "zathura"
+               '(file))))
+  (openwith-mode 1))
 
 (crafted-package-install-package 'rainbow-delimiters)
 (rainbow-delimiters-mode 1)
