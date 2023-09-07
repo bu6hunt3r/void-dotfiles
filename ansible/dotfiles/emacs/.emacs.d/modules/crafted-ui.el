@@ -170,13 +170,18 @@ Used as hook for modes which should not display line numebrs."
 (crafted-package-install-package 'doom-modeline)
 (provide 'crafted-ui)
 
-;;;; Font settings
+;; Font settings
 (add-hook 'emacs-startup-hook
           (lambda () (custom-set-faces
                       `(default ((t (:font "JetBrains Mono 14"))))
                       `(fixed-pitch ((t (:inherit (default)))))
                       `(variable-pitch ((t (:font "JetBrains Mono 14")))))))
 
+;; (add-hook 'emacs-startup-hook
+;;           (lambda () (custom-set-faces
+;;                       `(default ((t (:font "Agave Nerd Font 14"))))
+;;                       `(fixed-pitch ((t (:inherit (default)))))
+;;                       `(variable-pitch ((t (:font "Agave Nerd Font 14")))))))
 ;;;; Disable splash on startup
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 

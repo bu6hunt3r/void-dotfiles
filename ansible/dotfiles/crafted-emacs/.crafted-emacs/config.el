@@ -229,4 +229,7 @@
 
 (crafted-package-install-package 'haskell-mode)
 
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (rainbow-delimiters-mode 1)))
   ;; example-config.el ends here

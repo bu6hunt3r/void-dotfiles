@@ -252,3 +252,6 @@ bindsym $mod+m output "eDP-1" toggle
 
 # exec kanshi / autorandr equivalent for wayland
 exec_always kanshi
+
+# exec emacs as a service
+exec_always emacs --daemon
