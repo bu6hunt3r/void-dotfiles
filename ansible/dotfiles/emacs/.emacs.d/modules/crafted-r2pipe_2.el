@@ -2,7 +2,6 @@
 ;; To create a file, visit it with C-x C-f and enter text in its buffer.
 
 (require 's)
-(setq process (r2-pipe-new "/home/void/dev/HeapLAB/.glibc/glibc_2.30_no-tcache/libc.so.6"))
 
 (defgroup r2pipe nil
   "Run and interact with radare2 under Emacs."
@@ -13,6 +12,9 @@
   "The path to the radare2 program.")
 
 (setq latest-output nil)
+
+(setq json-object-type 'plist
+      json-array-type 'list)
 
 (defun r2--copy-output-filter (process output)
   (setq latest-output output))
@@ -35,23 +37,49 @@
 (defun r2cmd-json (process cmd)
   (json-read-from-string (r2cmd process cmd)))
 
-(setq r2pipe (r2open"/home/void/dev/HeapLAB/.glibc/glibc_2.30_no-tcache/libc.so.6"))
-
-(defun r2pipe-find-string (str)
-  (cdr (assoc 'offset (json-read-from-string (s-replace "]" "" (s-replace "[" "" (r2cmd r2pipe (format "/j %s" str))))))))
-
-(defun r2pipe-clean-json (str)
-  (s-replace "[" "" (s-replace "]" "" str)))
-
-(defun r2pipe-find-xrefs (data)
-  (r2cmd-json r2pipe (format "axtj @ %s" data)))
-
-(setq binsh (r2pipe-find-string "/bin/sh"))
-
-(r2cmd r2pipe "aaa")
-(setq xrefs (r2pipe-find-xrefs binsh))
-
-(json-read-from-string (r2pipe-clean-json xrefs))
+(defun r2pipe-find-string (process str)
+  (plist-get (car (r2cmd-json process (format "/j %s" str))) :offset))
 
 
-latest-output
+(defun r2pipe-find-xrefs (process obj-addr)
+  (r2cmd-json process (format "axtj @ %s~lea rdi" obj-addr)))
+
+(defun r2pipe-search-magic-gadgets (xrefs)
+  (seq-filter (lambda (elem) (string-prefix-p "lea rdi" (plist-get elem :opcode))) xrefs))
+
+(defun r2pipe-offset-magic-gadgets (gadgets)
+  (setq offsets (mapcar (lambda (elem) (plist-get elem :from)) gadgets))
+  offsets)
+
+(defun r2pipe-disassemble-gadget (process offset)
+  (setq result (r2cmd-json process (format "pducj @ %s" offset)) result))
+
+(defun r2pipe-magic-gadgets (process)
+  (progn
+    (setq binsh (r2pipe-find-string process "/bin/sh"))
+    (setq xrefs (r2pipe-find-xrefs process binsh))
+    (setq magic-gadgets (r2pipe-search-magic-gadgets xrefs))
+    (setq offsets (r2pipe-offset-magic-gadgets magic-gadgets)))
+  offsets)
+
+  ;; EXAMPLE
+;;  (format "axtj @ %s~lea rdi" binsh)
+;; (setq r2pipe (r2open"/home/void/dev/HeapLAB/.glibc/glibc_2.30_no-tcache/libc.so.6"))
+
+;; (r2cmd r2pipe "aaa")
+
+;; (r2cmd-json r2pipe "/j /bin/sh")
+
+;; (setq binsh (r2pipe-find-string r2pipe "/bin/sh"))
+
+;; (setq xrefs (r2pipe-find-xrefs r2pipe binsh))
+
+;; (setq potential-gadgets (r2pipe-search-magic-gadgets xrefs))
+
+;; (setq offsets (r2pipe-offset-magic-gadgets potential-gadgets))
+
+;; (plist-get (setq first (r2pipe-disassemble-gadget r2pipe (car offsets))) :text)
+
+;; (setq disassembly (r2pipe-disassemble-gadget r2pipe (car offsets)))
+
+;; (r2pipe-magic-gadgets r2pipe)

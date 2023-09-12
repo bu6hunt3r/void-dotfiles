@@ -38,6 +38,7 @@
 ;; (require 'crafted-screencast)  ; show current command and binding in modeline
 (require 'crafted-compile)     ; automatically compile some emacs lisp files
 (require 'crafted-ui)          ; user interface settings
+(require 'crafted-r2pipe)      ; user interface for radare2
 ;; (require 'crafted-pdf-reader)
 ;; Set the default face. The default face is the basis for most other
 ;; faces used in Emacs. A "face" is a configuration including font,

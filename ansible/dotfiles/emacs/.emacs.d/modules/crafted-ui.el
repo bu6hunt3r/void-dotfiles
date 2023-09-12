@@ -171,17 +171,17 @@ Used as hook for modes which should not display line numebrs."
 (provide 'crafted-ui)
 
 ;; Font settings
-(add-hook 'emacs-startup-hook
-          (lambda () (custom-set-faces
-                      `(default ((t (:font "JetBrains Mono 14"))))
-                      `(fixed-pitch ((t (:inherit (default)))))
-                      `(variable-pitch ((t (:font "JetBrains Mono 14")))))))
-
 ;; (add-hook 'emacs-startup-hook
 ;;           (lambda () (custom-set-faces
-;;                       `(default ((t (:font "Agave Nerd Font 14"))))
+;;                       `(default ((t (:font "JetBrains Mono 14"))))
 ;;                       `(fixed-pitch ((t (:inherit (default)))))
-;;                       `(variable-pitch ((t (:font "Agave Nerd Font 14")))))))
+;;                       `(variable-pitch ((t (:font "JetBrains Mono 14")))))))
+
+(add-hook 'emacs-startup-hook
+          (lambda () (custom-set-faces
+                      `(default ((t (:font "Agave Nerd Font 14"))))
+                      `(fixed-pitch ((t (:inherit (default)))))
+                      `(variable-pitch ((t (:font "Agave Nerd Font 14")))))))
 ;;;; Disable splash on startup
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 
@@ -199,4 +199,8 @@ Used as hook for modes which should not display line numebrs."
 
 (crafted-package-install-package 'rainbow-delimiters)
 (rainbow-delimiters-mode 1)
+
+;; line-numbers-mode
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
 ;;; crafted-ui.el ends here
