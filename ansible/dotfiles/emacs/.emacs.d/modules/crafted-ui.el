@@ -181,7 +181,7 @@ Used as hook for modes which should not display line numebrs."
           (lambda () (custom-set-faces
                       `(default ((t (:font "Agave Nerd Font 14"))))
                       `(fixed-pitch ((t (:inherit (default)))))
-                      `(variable-pitch ((t (:font "Agave Nerd Font 14")))))))
+                      `(variable-pitch ((t (:font "Iosevka Aile Light 14")))))))
 ;;;; Disable splash on startup
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 

@@ -22,6 +22,7 @@
      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
      (yaml "https://github.com/ikatyang/tree-sitter-yaml")
      (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
+     (org "https://github.com/milisims/tree-sitter-org")
      ))
 
 (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist)

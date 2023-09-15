@@ -233,4 +233,20 @@
 (add-hook 'prog-mode-hook
           (lambda ()
             (rainbow-delimiters-mode 1)))
+
+(defun eshell-fn-on-files (f1 f2 args)
+  "Call F1 on first element in list, ARGS.
+Call F2 on rest of the elements in ARGS."
+  (unless (null args)
+    (let ((filenames (flatten-list args)))
+      (funcall f1 (car filenames))
+      (when (cdr filenames)
+        (mapcar f2 (cdr filenames))
+        ;; Return empty string as results:
+        ""))))
+
+(defun eshell/less (&rest files)
+  "Expanded alias to `view-file'."
+  (eshell-fn-on-files 'view-file
+                'view-file-other-window files))
   ;; example-config.el ends here
