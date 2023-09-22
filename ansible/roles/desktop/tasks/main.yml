@@ -85,7 +85,9 @@
       - Signal-Desktop # messaging app
       - x2goclient # linux remote desktop client
       - torbrowser-launcher
-# - downgrade # package downgrader
+      # IDE
+      - emacs-gtk3
+      # - downgrade # package downgrader
 
 - name: install steam packages
   community.general.xbps:

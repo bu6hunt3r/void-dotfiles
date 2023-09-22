@@ -181,7 +181,7 @@ Used as hook for modes which should not display line numebrs."
           (lambda () (custom-set-faces
                       `(default ((t (:font "Agave Nerd Font 14"))))
                       `(fixed-pitch ((t (:inherit (default)))))
-                      `(variable-pitch ((t (:font "Iosevka Aile Light 14")))))))
+                      `(variable-pitch ((t (:font "Agave Nerd Font 14")))))))
 ;;;; Disable splash on startup
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 
@@ -203,4 +203,36 @@ Used as hook for modes which should not display line numebrs."
 ;; line-numbers-mode
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (setq display-line-numbers-type 'relative)
+
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-!") 'eshell-here)
+
+(defun eshell/x ()
+  (insert "exit")
+  (eshell-send-input)
+  (delete-window))
+
+(crafted-package-install-package 'eshell-syntax-highlighting)
+
+(eshell-syntax-highlighting-global-mode 1)
+
+
+
 ;;; crafted-ui.el ends here
