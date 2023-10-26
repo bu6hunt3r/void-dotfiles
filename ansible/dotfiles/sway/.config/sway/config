@@ -158,6 +158,13 @@ bindsym --to-code $mod+Shift+Up move up
 bindsym --to-code $mod+Shift+Right move right
 
 # Switch to workspace
+# bindsym --to-code $mod+1 workspace $ws1
+# bindsym --to-code $mod+2 workspace $ws2
+# bindsym --to-code $mod+3 workspace $ws3
+# bindsym --to-code $mod+4 workspace $ws4
+# bindsym --to-code $mod+5 workspace $ws5
+# bindsym --to-code $mod+6 workspace $ws6
+
 bindsym --to-code $mod+1 workspace $ws1
 bindsym --to-code $mod+2 workspace $ws2
 bindsym --to-code $mod+3 workspace $ws3
@@ -196,8 +203,7 @@ bar {
 #     }
 # }
 
-exec pipewire
-exec wireplumber
+exec dbus-run-session pipewire
 
 # Sreen brightness controls
 bindsym --to-code XF86MonBrightnessUp exec brightnessctl -q set +2% # increase screen brightness
@@ -233,6 +239,7 @@ exec_always python ~/.config/sway/swayfader.py
 
 # wallpaper
 exec_always swaybg -o \* -i ~/.config/sway/purple.jpg -m fill
+#exec_always swaybg -o \* -i ~/Downloads/Gnu_meditate_levitate.png -m fill
 
 # when going idle
 for_window [app_id="lock_term"] fullscreen global;

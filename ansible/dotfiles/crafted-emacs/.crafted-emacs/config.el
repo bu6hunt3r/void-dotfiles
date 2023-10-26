@@ -39,6 +39,8 @@
 (require 'crafted-compile)     ; automatically compile some emacs lisp files
 (require 'crafted-ui)          ; user interface settings
 (require 'crafted-r2pipe)      ; user interface for radare2
+(require 'crafted-haskell)     ; user interface for haskell
+(require 'crafted-eshell)      ; emacs eshell customization
 ;; (require 'crafted-pdf-reader)
 ;; Set the default face. The default face is the basis for most other
 ;; faces used in Emacs. A "face" is a configuration including font,
@@ -74,9 +76,9 @@
 
 ;; Doom modeline mode
 (crafted-package-install-package 'doom-modeline)
-(doom-modeline-mode 1)
+;; (doom-modeline-mode 1)
 
-;;(customize-set-variable 'crafted-startup-inhibit-splash t)
+(customize-set-variable 'crafted-startup-inhibit-splash nil)
 ;; To not load `custom.el' after `config.el', uncomment this line.
 ;; (setq crafted-load-custom-file nil)
 
@@ -248,5 +250,21 @@ Call F2 on rest of the elements in ARGS."
 (defun eshell/less (&rest files)
   "Expanded alias to `view-file'."
   (eshell-fn-on-files 'view-file
-                'view-file-other-window files))
+                      'view-file-other-window files))
+(defun set-exec-path-from-shell-PATH ()
+  "Set up Emacs' `exec-path' and PATH environment variable to match
+that used by the user's shell.
+
+This is particularly useful under Mac OS X and macOS, where GUI
+apps are not started from a shell."
+  (interactive)
+  (let ((path-from-shell (replace-regexp-in-string
+                          "[ \t\n]*$" "" (shell-command-to-string
+                                          "$SHELL --login -c 'echo $PATH'"
+                                                    ))))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(set-exec-path-from-shell-PATH)
+
   ;; example-config.el ends here

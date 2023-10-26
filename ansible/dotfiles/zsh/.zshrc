@@ -346,3 +346,5 @@ PERL5LIB="/home/void/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/void/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/void/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/void/perl5"; export PERL_MM_OPT;
+
+[ -f "/home/void/.ghcup/env" ] && source "/home/void/.ghcup/env" # ghcup-env
