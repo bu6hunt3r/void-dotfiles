@@ -241,7 +241,6 @@ directory to make multiple eshell windows easier."
 (eshell-syntax-highlighting-global-mode 1)
 
 ;; Mode line settings
-;; Mode line settings
 ;; use setq-default to set it for /all/ modes
 
 (setq-default mode-line-format
