@@ -11,6 +11,7 @@
     - grc
     - tree
     - tmux
+    - cargo
 - name: Build directories list
   find: 
     paths: [dotfiles/]
