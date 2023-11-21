@@ -517,6 +517,9 @@ don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~
   (defvar my/default-font-name "Cascadia Code"
     "Default font.")
 
+   ;; (defvar my/default-font-name "APL385 Unicode"
+   ;;  "Default font.")
+
   (defun my/set-font ()
     (when (find-font (font-spec :name my/default-font-name))
       (set-face-attribute 'default nil
@@ -564,6 +567,18 @@ don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~
 
 ** Modeline settings
 
+*** Major Mode Icons
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'major-mode-icons)
+  (setq
+   mode-line-end-spaces
+   (quote
+    ((:eval
+      (major-mode-icons-show))
+      )))
+#+end_src
+
 *** Spacious Modeline
 
 #+begin_src emacs-lisp
@@ -609,16 +624,13 @@ Don't want a bloated modeline in Emacs, so I decided to use this one:
 
   (setq-default mode-line-format
                 '("%e"
+                  mode-line-end-spaces
                   "  "
                   my-modeline-buffer-name
                   "  "
                   my-modeline-major-mode
                   "  "
                   my-modeline-minor-modes
-                  "  "
-                  ;; my-modeline-vc-state
-                  "  "
-                  my-modeline-modified-state
                   ))
 
     (defun my-modeline--major-mode-name ()
