@@ -348,3 +348,5 @@ PERL_MB_OPT="--install_base \"/home/void/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/void/perl5"; export PERL_MM_OPT;
 
 [ -f "/home/void/.ghcup/env" ] && source "/home/void/.ghcup/env" # ghcup-env
+
+source $HOME/.elan/env # elan / lean4 version manager
