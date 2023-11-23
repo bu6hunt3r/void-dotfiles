@@ -238,7 +238,7 @@ seat seat0 xcursor_theme Breeze-Hacked 28
 exec_always python ~/.config/sway/swayfader.py
 
 # wallpaper
-exec_always swaybg -o \* -i ~/.config/sway/purple.jpg -m fill
+exec_always swaybg -o \* -i ~/.config/sway/outrun.jpg -m fill
 #exec_always swaybg -o \* -i ~/Downloads/Gnu_meditate_levitate.png -m fill
 
 # when going idle
