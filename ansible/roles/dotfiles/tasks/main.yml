@@ -1,5 +1,8 @@
+---
+- include_tasks: check_for_unzip.yml
+
 - name: Install needed packages
-  community.general.xbps: 
+  community.general.xbps:
     name: '{{ item }}'
   loop:
     - stow
@@ -13,7 +16,7 @@
     - tmux
     - cargo
 - name: Build directories list
-  find: 
+  find:
     paths: [dotfiles/]
     recurse: no
     file_type: directory
@@ -32,29 +35,16 @@
     chdir: ./dotfiles
     executable: /bin/bash
 
-- name: Install cargo for rust
-  community.general.xbps:
-  name: cargo
-  
-- name: Add cargo's path to .profile
-  lineinfile:
-    path: /home/void/.profile
-    line: "export PATH=/home/void/.cargo/bin:$PATH"
-    owner: void
-    group: void
+# - name: Install cargo for rust
+#   community.general.xbps:
+#   name: cargo
 
-- name: Install pw-volume from cargo
-  shell: |
-    cargo install pw-volume
-  become: yes
-  become_user: '{{user}}'
-
-- name: Clone crafted-emacs repository
-  git:
-    repo: https://github.com/SystemCrafters/crafted-emacs.git
-    dest: /home/{{user}}/.emacs.d
-    clone: yes
-    update: no
+# - name: Add cargo's path to .profile
+#   lineinfile:
+#     path: /home/void/.profile
+#     line: "export PATH=/home/void/.cargo/bin:$PATH"
+#     owner: void
+#     group: void
 
 - name: Clone yasnippet repository
   git:
@@ -65,3 +55,9 @@
   become: yes
   become_user: '{{user}}'
 
+- name: Fetch nanorc sources
+  get_url:
+    url: https://github.com/scopatz/nanorc/archive/master.zip
+    dest: /tmp/nanorc.zip
+    mode: 0440
+  when: is_unzip_exist|success
