@@ -1,0 +1,131 @@
+<<<<<<< HEAD
+---
+- include_tasks: check_for_unzip.yml
+
+- name: Install needed packages
+  community.general.xbps:
+    name: '{{ item }}'
+  loop:
+    - stow
+    - zsh
+    - curl
+    - antibody
+    - direnv
+    - fzf
+    - grc
+    - tree
+    - tmux
+    - cargo
+=======
+# - name: Install needed packages
+#   community.general.xbps:
+#     name: '{{ item }}'
+#   loop:
+#     - stow
+#     - zsh
+#     - curl
+#     - antibody
+#     - direnv
+#     - fzf
+#     - grc
+#     - tree
+#     - tmux
+>>>>>>> bb5d35ff68dfe08f8e9084b0a098ceddfa6e449c
+- name: Build directories list
+  find:
+    paths: [dotfiles/]
+    recurse: no
+    file_type: directory
+  register: files
+
+<<<<<<< HEAD
+- name: Deploy dotfiles
+  become_user: '{{user}}'
+  become: yes
+  with_items: '{{files.files}}'
+  shell: |
+    STOW_PATH={{item.path | replace("dotfiles/", "")}}
+    OVERRIDE=$(cat ${STOW_PATH}/.override 2>/dev/null)
+    VOID_HOME=$(getent passwd void | cut -d: -f6)
+    stow -v --ignore "\.override" -t ${OVERRIDE:-$VOID_HOME} ${STOW_PATH}
+  args:
+    chdir: ./dotfiles
+    executable: /bin/bash
+
+# - name: Install cargo for rust
+#   community.general.xbps:
+#   name: cargo
+
+# - name: Add cargo's path to .profile
+#   lineinfile:
+#     path: /home/void/.profile
+#     line: "export PATH=/home/void/.cargo/bin:$PATH"
+#     owner: void
+#     group: void
+=======
+- name: Install cargo for rust
+  community.general.xbps:
+    name: cargo
+
+- name: Add cargo's path to .profile
+  lineinfile:
+    path: /home/void/.profile
+    line: "export PATH=/home/void/.cargo/bin:$PATH"
+    owner: void
+    group: void
+
+- name: Install pw-volume from cargo
+  shell: |
+    cargo install pw-volume
+  become: yes
+  become_user: '{{user}}'
+>>>>>>> bb5d35ff68dfe08f8e9084b0a098ceddfa6e449c
+
+- name: Clone yasnippet repository
+  git:
+    repo: https://github.com/joaotavora/yasnippet.git
+    dest: /home/{{user}}/.emacs.d/yasnippet
+    clone: yes
+    update: no
+  become: yes
+  become_user: '{{user}}'
+
+<<<<<<< HEAD
+- name: Fetch nanorc sources
+  get_url:
+    url: https://github.com/scopatz/nanorc/archive/master.zip
+    dest: /tmp/nanorc.zip
+    mode: 0440
+  when: is_unzip_exist|success
+=======
+- name: Deploy dotfiles
+  become_user: '{{user}}'
+  become: yes
+  with_items: '{{files.files}}'
+  shell: |
+    STOW_PATH={{item.path | replace("dotfiles/", "")}}
+    OVERRIDE=$(cat ${STOW_PATH}/.override 2>/dev/null)
+    VOID_HOME=$(getent passwd void | cut -d: -f6)
+    stow -v --ignore "\.override" -t ${OVERRIDE:-$VOID_HOME} ${STOW_PATH}
+  args:
+    chdir: ./dotfiles
+    executable: /bin/bash
+  loop_control:
+    label: |-
+      {% if output.stderr|length > 1 %}
+      {{ item.path }}
+      {{ output.stderr }}
+      {% else %}
+      {{ item.path }}
+      {%- endif %}
+  register: output
+  changed_when: '"LINK" in output.stderr'
+
+- name: Tangle emacs.org configuration
+  become_user: '{{user}}'
+  become: yes
+  shell: |
+    /home/'{{user}}'/.emacs.d/tangle.el
+  args:
+    executable: /bin/bash
+>>>>>>> bb5d35ff68dfe08f8e9084b0a098ceddfa6e449c

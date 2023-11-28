@@ -1,31 +1,37 @@
 {
     "position": "left",
     "modules-left": ["tray", "sway/workspaces"],
-    "modules-right": ["battery", "custom/separator", "custom/pipewire", "custom/separator", "memory", "custom/separator", "clock", "custom/separator", "custom/power"],
+    "modules-right": ["battery", "custom/separator", "wireplumber", "custom/separator", "memory", "custom/separator", "clock", "custom/separator", "custom/player", "custom/separator", "custom/power"],
+
     "sway/workspaces": {
-        "all-outputs": true,
-        "format": "",
-        "persistent_workspaces": {
-           "1": [],
-           "2": [],
-           "3": [],
-           "4": [],
-           "5": []
-        }
-    },
+	       "disable-scroll": true,
+	       "all-outputs": true,
+	       "format": "{name}: {icon}",
+	       "format-icons": {
+		   "1": "",
+		   "2": "",
+		   "3": "",
+		   "4": "",
+		   "5": "",
+		   "urgent": "",
+		   "focused": "",
+		   "default": ""
+	       }
+	   },
+
     "clock": {
-        "format": "{:%H\n%M}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+	"format": "{:%H\n%M}",
+	"tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
     },
     "memory": {
-        "format": "{}%"
+	"format": "{}%"
     },
     "custom/power": {
-        "format": "⏻",
-        "on-click": "loginctl poweroff"
+	"format": "⏻",
+	"on-click": "loginctl poweroff"
     },
     "custom/separator": {
-        "format": "──────"
+	"format": "──────"
     },
     "custom/pipewire": {
     "exec": "pw-volume status",
@@ -44,10 +50,10 @@
     },
     "battery": {
       "interval": 60,
-        "states": {
-        "good": 100,
-        "warning": 25,
-        "critical": 10
+	"states": {
+	"good": 100,
+	"warning": 25,
+	"critical": 10
       },
     "format": "{icon}    {capacity}%",
     "format-icons": ["", "", "", "", ""],
@@ -56,4 +62,22 @@
   "tray": {
     "icon-size": 20,
   },
+  "wireplumber": {
+    "format": "{icon} {volume}%",
+    "format-muted": "",
+    "format-icons": {
+      "mute": "",
+      "default": ["", "", ""]
+    },
+    "on-click": "$HOME/.config/waybar/change_sink.sh",
+  },
+  "custom/player": {
+    "format": "󰎈",
+    "return-type": "json",
+    "exec": "playerctl -a metadata --format '{\"text\": \"{{uc(playerName)}}: {{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{markup_escape(title)}}\", \"class\": \"{{status}}\"}' -F",
+    "max-length": 35,
+    "on-click-middle": "playerctl play-pause",
+    "on-click-right": "plaerctl next",
+    "on-click-left": "playerctl previous"
+  }
 }

@@ -1,0 +1,4 @@
+- name: Check is unzip installed
+  shell: command -v unzip >/dev/null 2>&1
+  register: is_unzip_exist
+  ignore_errors: yes

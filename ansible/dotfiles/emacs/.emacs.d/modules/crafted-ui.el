@@ -171,18 +171,25 @@ Used as hook for modes which should not display line numebrs."
 (provide 'crafted-ui)
 
 ;; Font settings
-;; (add-hook 'emacs-startup-hook
-;;           (lambda () (custom-set-faces
-;;                       `(default ((t (:font "JetBrains Mono 14"))))
-;;                       `(fixed-pitch ((t (:inherit (default)))))
-;;                       `(variable-pitch ((t (:font "JetBrains Mono 14")))))))
-
 (add-hook 'emacs-startup-hook
           (lambda () (custom-set-faces
-                      `(default ((t (:font "Agave Nerd Font 14"))))
+                      `(default ((t (:font "JetBrains Mono 14"))))
                       `(fixed-pitch ((t (:inherit (default)))))
-                      `(variable-pitch ((t (:font "Iosevka Aile Light 14")))))))
-;;;; Disable splash on startup
+                      `(variable-pitch ((t (:font "JetBrains Mono 14")))))))
+
+;; (add-hook 'emacs-startup-hook
+;;           (lambda () (custom-set-faces
+;;                       `(default ((t (:font "Agave Nerd Font Mono 14"))))
+;;                       `(fixed-pitch ((t (:inherit (default)))))
+;;                       `(variable-pitch ((t (:font "Agave Nerd Font Mono 14")))))))
+
+;; (add-hook 'emacs-startup-hook
+;;           (lambda () (custom-set-faces
+;;                       `(default ((t (:font "CaskaydiaCove Nerd Font Mono 14"))))
+;;                       `(fixed-pitch ((t (:inherit (default)))))
+;;                       `(variable-pitch ((t (:font "CaskaydiaCove Nerd Font Mono 14")))))))
+
+;; Disable splash on startup
 (customize-set-variable 'crafted-startup-inhibit-splash t)
 
 ;; ;; Open files from dired-mode via shortcut
@@ -203,4 +210,96 @@ Used as hook for modes which should not display line numebrs."
 ;; line-numbers-mode
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (setq display-line-numbers-type 'relative)
+
+(defun eshell-here ()
+  "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+  (interactive)
+  (let* ((parent (if (buffer-file-name)
+                     (file-name-directory (buffer-file-name))
+                   default-directory))
+         (height (/ (window-total-height) 3))
+         (name   (car (last (split-string parent "/" t)))))
+    (split-window-vertically (- height))
+    (other-window 1)
+    (eshell "new")
+    (rename-buffer (concat "*eshell: " name "*"))
+
+    (insert (concat "ls"))
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-!") 'eshell-here)
+
+(defun eshell/x ()
+  (insert "exit")
+  (eshell-send-input)
+  (delete-window))
+
+(crafted-package-install-package 'eshell-syntax-highlighting)
+
+(eshell-syntax-highlighting-global-mode 1)
+
+;; Mode line settings
+;; use setq-default to set it for /all/ modes
+
+(setq-default mode-line-format
+              (list
+
+               ;; ;; meow modal mode
+               ;; (when (require 'meow nil 'noerror)
+               ;;   (meow-indicator))
+
+               ;; day and time
+               ;; '(:eval (propertize (substring vc-mode 5)
+               ;;                     'face 'font-lock-comment-face))
+
+
+               '(:eval (propertize (format-time-string " %b %d %H:%M ")
+                                   'face 'font-lock-builtin-face))
+
+               '(:eval (propertize (substring vc-mode 5)
+                                   'face 'font-lock-comment-face))
+
+               ;; the buffer name; the file name as a tool tip
+               '(:eval (propertize " %b "
+                                   'face
+                                   (let ((face (buffer-modified-p)))
+                                     (if face 'font-lock-warning-face
+                                       'font-lock-type-face))
+                                   'help-echo (buffer-file-name)))
+
+               ;; line and column
+               " (" ;; '%02' to set to 2 chars at least; prevents flickering
+               (propertize "%02l" 'face 'font-lock-keyword-face) ","
+               (propertize "%02c" 'face 'font-lock-keyword-face)
+               ") "
+
+               ;; relative position, size of file
+               " ["
+               (propertize "%p" 'face 'font-lock-constant-face) ;; % above top
+               "/"
+               (propertize "%I" 'face 'font-lock-constant-face) ;; size
+               "] "
+
+               ;; ansi-term's line or char mode
+               ":"
+               'mode-line-process
+               ":"
+
+               ;; spaces to align right
+               '(:eval (propertize
+                " " 'display
+                `((space :align-to (- (+ right right-fringe right-margin)
+                                      ,(+ 3 (string-width (if (listp mode-name) (car mode-name) mode-name))))))))
+
+               ;(propertize org-mode-line-string 'face '(:foreground "#5DD8FF"))
+
+               ;; the current major mode
+               (propertize " %m " 'face 'font-lock-string-face)
+               ;;minor-mode-alist
+               ))
+
+
+
 ;;; crafted-ui.el ends here

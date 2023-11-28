@@ -1,0 +1,1456 @@
+#+TITLE: Emacs Configuration
+#+PROPERTY: header-args:emacs-lisp  :mkdirp yes :lexical t :exports code
+#+PROPERTY: header-args:emacs-lisp+ :tangle ~/.emacs.d/init.el
+#+property: header-args:emacs-lisp+ :mkdirp yes :noweb yes
+
+* Package Management
+:PROPERTIES:
+:CUSTOM_ID: Package-Management
+:END:
+** Repositories
+:PROPERTIES:
+:CUSTOM_ID: Package-Management-Repositories
+:END:
+By default, only GNU’s repositories are available to the package
+managers of Emacs. I also want to use Melpa and org-mode’s repository,
+so let’s add them! Note that the stock /elpa/ repository is renamed to
+/gnu/ due to the addition of another Elpa repository, /nongnu/, which will
+hosts packages that do not conform to the FSF’s copyright assignment.
+Both the /gnu/ and the /nonfree/ repositories are Elpa repositories now,
+and they are renamed here in order to avoid any confusion between the
+two of them. Melpa is a community-maintained repository which contains
+an absurd amount of Emacs packages.
+#+begin_src emacs-lisp
+  (require 'package)
+  (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
+                         ("gnu"    . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+
+  (setq warning-minimum-level :emergency)
+  (package-initialize)
+  (package-refresh-contents)
+#+end_src
+
+#+RESULTS:
+
+Now, we can refresh our package list in order to be able to install
+stuff.
+#+begin_src emacs-lisp
+  (defun ensure-package-installed (&rest packages)
+    (let ((user-required-packages
+           (seq-remove
+            (lambda (package) (package-installed-p package))
+            packages)))
+      (when user-required-packages
+        (package-refresh-contents)
+        (dolist (package user-required-packages)
+          (package-install package)))))
+#+end_src
+
+#+RESULTS:
+: ensure-package-installed
+
+* Manually added modules
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/lisp/")
+  (require 'ob-erlang)
+#+end_src
+* Basic Configuration
+:PROPERTIES:
+:CUSTOM_ID: Basic-Configuration
+:END:
+** Early Init
+:PROPERTIES:
+:CUSTOM_ID: Basic-Configuration-Early
+:header-args:emacs-lisp: :tangle ~/.emacs.d/early-init.el :mkdirp yes
+:header-args:emacs-lisp+: :exports code :results silent :lexical t
+:END:
+The early init file is the file loaded before anything else in
+Emacs. This is where I put some options in order to disable as quickly
+as possible some built-in features of Emacs before they can be even
+loaded, speeding Emacs up a bit.
+#+begin_src emacs-lisp :mkdirp yes
+  (setq package-enable-at-startup nil
+        inhibit-startup-message   t
+        frame-resize-pixelwise    t  ; fine resize
+        package-native-compile    t) ; native compile packages
+  (scroll-bar-mode -1)               ; disable scrollbar
+  (tool-bar-mode -1)                 ; disable toolbar
+  (tooltip-mode -1)                  ; disable tooltips
+  (set-fringe-mode 10)               ; give some breathing room
+  (menu-bar-mode -1)                 ; disable menubar
+  (blink-cursor-mode 0)              ; disable blinking cursor
+  (setq gc-cons-threshold (* 1024 1024 1024))
+  ;;(load-file "~/.emacs.d/init.el")
+#+end_src
+
+** Emacs Behavior
+:PROPERTIES:
+*** Editing Text in Emacs
+:PROPERTIES:
+:CUSTOM_ID: Basic-Configuration-Emacs-Behavior-Editing-Text-in-Emacs
+:header-args:emacs-lisp: :tangle ~/.emacs.d/early-init.el :mkdirp yes
+:header-args:emacs-lisp+: :exports code :results silent :lexical t
+:END:
+I *never* want to keep trailing spaces in my files, which is why I'm doing this:
+#+begin_src emacs-lisp
+  (add-hook 'before-save-hook #'whitespace-cleanup)
+#+end_src
+
+I don't understand why some people add two spaces behind a full stop,
+I sure don't. Let's tell Emacs.
+#+begin_src emacs-lisp
+  (setq-default sentence-end-double-space nil)
+#+end_src
+
+There is a minor mode in Emacs which allows to have a finer way of
+jumping from word to word: ~global-subword-mode~. It detects if what
+Emacs usually considers a word can be understood as several words, as
+in camelCase words, and allows us to jump words on this finer level.
+#+begin_src emacs-lisp
+(global-subword-mode 1)
+#+end_src
+
+Changing half my screen each time my cursor goes too high or too low
+is not exactly ideal. Fortunately, if we set ~scroll-conservatively~
+high enough we can have the cursor stay on top or at the bottom of the
+screen while the text scrolls progressively.
+#+begin_src emacs-lisp
+(setq scroll-conservatively 1000)
+#+end_src
+
+Lastly, I want the default mode for Emacs to be Emacs Lisp.
+#+begin_src emacs-lisp
+(setq-default initial-major-mode 'emacs-lisp-mode)
+#+end_src
+*** Auto Revert Mode
+#+begin_src emacs-lisp
+  (global-auto-revert-mode)
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Folding
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Programming-Modes-Folding
+:END:
+#+begin_src emacs-lisp :noweb yes
+  (dolist (mode '(<<prog-modes-gen()>>))
+          (add-hook mode #'hs-minor-mode))
+#+end_src
+
+#+RESULTS:
+
+**** Indentation
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Programming-Modes-Indentation
+:END:
+I don’t like tabs. They rarely look good, and if I need it I can almost always tell Emacs to use them through a .dir-locals.el file or through the config file of my code formatter. So by default, let’s disable them:
+#+begin_src emacs-lisp
+  (setq indent-tabs-mode nil)
+  (add-hook 'prog-mode-hook (lambda () (setq indent-tabs-mode nil)))
+
+#+end_src
+
+#+RESULTS:
+| (closure (t) nil (setq indent-tabs-mode nil)) | yas-minor-mode | display-line-numbers-mode | (lambda nil (setq indent-tabs-mode nil)) | hs-minor-mode |
+
+:CUSTOM_ID: Basic-Configuration-Emacs-Behavior
+:header-args:emacs-lisp: :tangle ~/.emacs.d/early-init.el :mkdirp yes
+:header-args:emacs-lisp+: :exports code :results silent :lexical t
+:END:
+
+*** Programming Modes
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Programming-Modes
+:END:
+First off, my definition of what makes a “programming mode” doesn’t exactly
+fit mine, so on top of ~prog-mode~, let’s add a few other modes.
+#+name: line-number-modes-table
+| Modes      |
+|------------|
+| prog-mode  |
+| latex-mode |
+
+#+name: prog-modes-gen
+#+header: :cache yes :exports none :tangle no
+#+begin_src emacs-lisp :var modes=line-number-modes-table
+(mapconcat (lambda (mode) (format "%s-hook" (car mode)))
+           modes
+           " ")
+#+end_src
+
+#+RESULTS[427c457ba74530bb013e80aa28e15f5621f8e2c5]: prog-modes-gen
+: prog-mode-hook latex-mode-hook
+
+**** Line Number
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Programming-Modes-Line-Number
+:END:
+Since version 26, Emacs has a built-in capacity of displaying line
+numbers on the left-side of the buffer. This is a fantastic feature
+that should actually be the default for all programming modes.
+
+#+begin_src emacs-lisp :noweb yes
+(dolist (mode '(<<prog-modes-gen()>>))
+  (add-hook mode #'display-line-numbers-mode))
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (setq display-line-numbers 'relative)
+#+end_src
+
+**** Adding hooks to start Eglot
+#+begin_src emacs-lisp
+  (add-hook 'erlang-mode-hook #'eglot-ensure)
+#+end_src
+
+*** Stay Clean, Emacs!
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Stay-Clean-Emacs
+:END:
+As nice as Emacs is, it isn’t very polite or clean by default: open a
+file, and it will create backup files in the same directory. But then,
+when you open your directory with your favorite file manager and see
+almost all of your files duplicated with a =~= appended to the filename,
+it looks really uncomfortable! This is why I prefer to tell Emacs to
+keep its backup files to itself in a directory it only will access.
+#+begin_src emacs-lisp
+(setq backup-directory-alist `(("." . ,(expand-file-name ".tmp/backups/"
+                                                         user-emacs-directory))))
+#+end_src
+
+#+RESULTS:
+: ((. . /home/void/.emacs.d/.tmp/backups/))
+
+It also loves to litter its ~init.el~ with custom variables here and
+there, but the thing is: I regenerate my ~init.el~ each time I tangle
+this file! How can I keep Emacs from adding stuff that will be almost
+immediately lost? Did someone say /custom file/?
+#+begin_src emacs-lisp
+(setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
+(when (file-exists-p custom-file) ; Don’t forget to load it, we still need it
+  (load custom-file))
+#+end_src
+
+#+RESULTS:
+: t
+
+If we delete a file, we want it moved to the trash, not simply deleted.
+#+begin_src emacs-lisp
+(setq delete-by-moving-to-trash t)
+#+end_src
+
+#+RESULTS:
+: t
+
+Finally, the scratch buffer always has some message at its beginning, I
+don’t want it!
+#+begin_src emacs-lisp
+(setq-default initial-scratch-message nil)
+#+end_src
+
+#+RESULTS:
+
+*** Stay polite, Emacs
+
+When asking for our opinion on something, Emacs loves asking us to answer by “yes” or “no”, but in full! That’s very rude! Fortunately, we can fix this.
+
+#+begin_src emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+#+RESULTS:
+: yes-or-no-p
+
+*** Custom Add Hooks
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Stay-Clean-Emacs
+:END:
+Typically, you would need to call ~add-hook~ multiple times with similar arguments
+to declare multiple functions for one hook, or vice versa. ~add-hooks-pair~ is a
+variant that takes multiple hooks or functions that apply to each other.
+The ~add-hooks~ function tidies up duplicate hook and function names further into a
+single declarative call (inspired by the ~bind-key~ package).
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'add-hooks)
+#+end_src
+
+#+RESULTS:
+
+*** Which Key Mode
+:PROPERTIES:
+:CUSTOM_ID: Basic-Configuration-Emacs-Behavior-Which-Key-Mode
+:PROPERTIES:
+#+begin_src emacs-lisp
+  (ensure-package-installed 'which-key)
+  (which-key-mode 1)
+#+end_src
+
+*** Edit with elevated privileges
+
+#+begin_src emacs-lisp
+  (defun sudo-find-file (file-name)
+    "Like `find-file', but opens file as root."
+    (interactive "Fsudo find file: ")
+    (let ((tramp-file-name
+           (concat "/sudo::" (expand-file-name file-name))))
+      (find-file tramp-file-name)))
+#+end_src
+** Text scaling
+#+begin_src emacs-lisp
+  (ensure-package-installed 'default-text-scale)
+  (default-text-scale-mode)
+#+end_src
+
+#+RESULTS:
+: t
+*** Eldoc Behaviour
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Emacs-Behavior-Programming-Modes-Eldoc-Behaviour
+:END:
+
+Eldoc looks for stuff at point, so we need something that can give us the Flycheck messages at point. That’s very easy, thanks to the flycheck-overlay-errors-at function.
+Next, we need to design the Eldoc documentation function. It has to be just so as it uses a callback mechanism to in effect daisy chain messages together as it walks through the documentation functions.
+Here’s one such example — but please experiment, as it’s rather easy to alter this approach to work with other things that Eldoc wouldn’t ordinarily work with.
+#+begin_src emacs-lisp
+  (defun mp-flycheck-eldoc (callback &rest _ignored)
+     "Print flycheck messages at point by calling CALLBACK."
+     (when-let ((flycheck-errors (and flycheck-mode (flycheck-overlay-errors-at (point)))))
+       (mapc
+        (lambda (err)
+          (funcall callback
+             (format "%s: %s"
+                     (let ((level (flycheck-error-level err)))
+                       (pcase level
+                         ('info (propertize "I" 'face 'flycheck-error-list-info))
+                         ('error (propertize "E" 'face 'flycheck-error-list-error))
+                         ('warning (propertize "W" 'face 'flycheck-error-list-warning))
+                         (_ level)))
+                     (flycheck-error-message err))
+             :thing (or (flycheck-error-id err)
+                        (flycheck-error-group err))
+             :face 'font-lock-doc-face))
+        flycheck-errors)))
+
+  (ensure-package-installed 'flycheck)
+  (add-hook 'eldoc-documentation-functions #'mp-flycheck-eldoc nil t)
+  (add-hook 'eldoc-documentation-functions #'mp-flycheck-eldoc nil t)
+  (add-hook 'flycheck-mode 'mp-flycheck-prefer-eldoc)
+#+end_src
+
+Flymake used Eglot now by default.
+
+#+begin_src emacs-lisp
+  (defun mp-eglot-eldoc ()
+    (setq eldoc-documentation-strategy
+          'eldoc-documentation-compose-eagerly))
+
+  (add-hook 'eglot-managed-mode-hook 'mp-eglot-eldoc)
+#+end_src
+
+Dedicated Eldoc Documentation Buffer
+
+#+begin_src emacs-lisp
+  (add-to-list 'display-buffer-alist
+               '("^\\*eldoc for" display-buffer-at-bottom
+                 (window-height . 4)))
+#+end_src
+
+* Keybinding Management
+** Evil
+:PROPERTIES:
+:CUSTOM_ID: Keybinding-Management-Evil
+:END:
+Evil emulates most of vim’s keybinds, because let’s be honest here,
+they are much more comfortable than Emacs’.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'evil)
+  ;; Disable C-i to jump forward to restore TAB functionality in Org mode.
+  (setq evil-want-C-i-jump nil)
+  (require 'evil)
+  (require 'evil-vars)
+
+  (evil-set-undo-system 'undo-tree)
+  (setq evil-want-fine-undo t)
+  (evil-mode 1)
+#+end_src
+*** Evil Snipe
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'evil-snipe)
+  (require 'evil-snipe)
+  (evil-snipe-mode 1)
+  (evil-snipe-override-mode +1)
+#+end_src
+
+  ,#+RESULTS:
+  : t
+
+  ~undo-tree~ is my preferred way of undoing and redoing stuff. The main
+  reason is it doesn’t create a linear undo/redo history, but rather a
+  complete tree you can navigate to see your complete editing history.
+  One of the two obvious things to do are to tell Emacs to save all its
+  undo history fies in a dedicated directory, otherwise we’d risk
+  littering all of our directories. The second thing is to simply
+  globally enable its mode.
+
+  ,#+begin_src emacs-lisp
+    (ensure-package-installed 'undo-tree)
+    (global-undo-tree-mode 1)
+
+    (custom-set-variables
+     '(undo-tree-history-directory-alist `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist") user-emacs-directory)))))
+    (setq undo-tree-visualizer-diff       t
+            undo-tree-visualizer-timestamps t
+            undo-tree-auto-save-history     t
+            undo-tree-enable-undo-in-region t
+            undo-limit        (* 800 1024)
+            undo-strong-limit (* 12 1024 1024)
+            undo-outer-limit  (* 128 1024 1024))
+#+end_src
+
+#+RESULTS:
+: 134217728
+
+* Packages Configuration
+** General
+#+begin_src emacs-lisp
+  (ensure-package-installed 'general)
+#+end_src
+
+#+RESULTS:
+
+** Autocompletion
+*** Ivy
+:PROPERTIES:
+:CUSTOM_ID: Packages-Configuration-Autocompletion-Ivy
+:END:
+My main menu package is =ivy= which I use as much as possible –I’ve
+noticed =helm= can be slow, very slow in comparison to =ivy=, so I’ll use
+the latter as much as possible. Actually, only =ivy= is installed for
+now. I could have used =ido= too, but I find it to be a bit too
+restricted in terms of features compared to =ivy=.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'ivy)
+  (global-set-key (kbd "C-s") #'swiper)
+
+
+  (require 'general)
+  (general-create-definer my/leader-key
+      :states '(normal insert visual emacs)
+      :keymaps 'override
+      :prefix "SPC"
+      :global-prefix "C-SPC")
+
+  (my/leader-key
+    "i" '(ivy-yasnippet :which-key "Insert snippet"))
+
+  (general-define-key
+   :keymaps 'ivy-minibuffer-map
+   "TAB" 'ivy-alt-done
+   "C-l" 'ivy-alt-done
+   "C-t" 'ivy-next-line
+   "C-s" 'ivy-previous-line
+   "C-u" 'ivy-scroll-up-command
+   "C-d" 'ivy-scroll-down-command
+   :keymaps 'ivy-switch-buffer-map
+   "C-t" 'ivy-next-line
+   "C-s" 'ivy-previous-line
+   "C-l" 'ivy-done
+   "C-d" 'ivy-switch-buffer-kill
+   :keymaps 'ivy-reverse-i-search-map
+   "C-t" 'ivy-next-line
+   "C-s" 'ivy-previous-line
+   "C-d" 'ivy-reverse-i-search-kill)
+#+end_src
+
+#+RESULTS:
+
+** Yasnippets
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'yasnippet)
+  (yas-global-mode)
+
+  (add-hooks-pair '(prog-mode text-mode) '(yas-minor-mode))
+
+  (ensure-package-installed 'yasnippet-snippets)
+
+  (ensure-package-installed 'ivy-yasnippet)
+#+end_src
+
+#+RESULTS:
+
+** Ripgrep
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'rg)
+#+end_src
+* Visual Configuration
+With Emacs 29.0.50 onwards, a new frame parameter exists:
+~alpha-background~. Unlike ~alpha~, this frame parameter only makes Emacs’
+background transparent, excluding images and text.
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist '(alpha-background . 0.7))
+#+end_src
+
+#+RESULTS:
+: ((alpha-background . 0.7) (vertical-scroll-bars) (left-fringe . 10) (right-fringe . 10))
+
+** Fonts
+:PROPERTIES:
+:CUSTOM_ID: Basic-configuration-Visual-Configuration-Fonts
+:END:
+I don’t like the default font I usually have on my machines, I really
+don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~]].
+#+begin_src emacs-lisp
+  (defvar my/default-font-size 150
+    "Default font size.")
+
+  ;; (defvar my/default-font-name "Iosevka Comfy Motion"
+  ;;   "Default font.")
+
+  (defvar my/default-font-name "Cascadia Code"
+    "Default font.")
+
+   ;; (defvar my/default-font-name "APL385 Unicode"
+   ;;  "Default font.")
+
+  (defun my/set-font ()
+    (when (find-font (font-spec :name my/default-font-name))
+      (set-face-attribute 'default nil
+                          :font my/default-font-name
+                          :height my/default-font-size)))
+
+  (my/set-font)
+  (add-hook 'server-after-make-frame-hook #'my/set-font)
+#+end_src
+
+#+RESULTS:
+| my/set-font |
+
+** Ligatures
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'ligature)
+  (ligature-set-ligatures '(prog-mode eldoc-mode) '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                         ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                         "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                         "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                         "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                         "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                         "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                         "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                         ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                         "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                         "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                         "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                         "\\\\" "://"))
+  (global-ligature-mode)
+#+end_src
+
+#+RESULTS:
+: t
+
+** Theme settings
+#+begin_src emacs-lisp
+  (ensure-package-installed 'doom-themes)
+  (load-theme 'doom-outrun-electric t)
+#+end_src
+
+#+RESULTS:
+: t
+
+** Modeline settings
+
+*** Major Mode Icons
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'major-mode-icons)
+  (setq
+   mode-line-end-spaces
+   (quote
+    ((:eval
+      (major-mode-icons-show))
+      )))
+#+end_src
+
+*** Spacious Modeline
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'spacious-padding)
+  ;;(spacious-padding-mode 1)
+#+end_src
+Don't want a bloated modeline in Emacs, so I decided to use this one:
+#+begin_src emacs-lisp
+
+    ;; (ensure-package-installed 'simple-modeline)
+    ;; (simple-modeline-mode)
+
+    (defvar mode-line-cleaner-alist
+      `((auto-complete-mode . " α")
+        (yas-minor-mode . " γ")
+        (paredit-mode . " Φ")
+        (undo-tree-mode . " ψ")
+        (corfu-mode . " χ")
+        (org-appear-mode . " ο")
+        (evil-local-mode . " ξ"))
+      "Alist for `clean-mode-line")
+
+    (defvar-local cleaned-minor-modes
+        "Cleaned List of Minor Modes.")
+
+    (defun my-modeline-active-minor-mode-p ()
+      (let ((active-minor-modes minor-mode-list))))
+
+    (defun my-modeline--minor-mode-p (mode)
+      (alist-get mode mode-line-cleaner-alist))
+
+    (defun my-modeline--minor-mode-get-keys ()
+      (cons cleaned-minor-modes ))
+
+    (defun my-modeline-clean-minor-modes ()
+      (let* ((active-minor-modes (seq-filter #'my-modeline--minor-mode-p minor-mode-list)))
+        (mapconcat 'identity (mapcar (lambda (e)
+                                       (alist-get e mode-line-cleaner-alist)) active-minor-modes))))
+
+  ;; (setq cleaned-minor-modes (mapconcat 'identity (my-modeline-clean-minor-modes)))
+
+  ;; (my-modeline-clean-minor-modes)
+
+  (setq-default mode-line-format
+                '("%e"
+                  mode-line-end-spaces
+                  "  "
+                  my-modeline-buffer-name
+                  "  "
+                  my-modeline-major-mode
+                  "  "
+                  my-modeline-minor-modes
+                  ))
+
+    (defun my-modeline--major-mode-name ()
+      "Return capitalized `major-mode' as string."
+      (capitalize (symbol-name major-mode)))
+
+    (defvar-local my-modeline-buffer-name
+        '(:eval
+          (when (mode-line-window-selected-p)
+            (propertize (buffer-name) 'face 'error))))
+
+    (put 'my-modeline-buffer-name 'risky-local-variable t)
+
+    (defvar-local my-modeline-major-mode
+        '(:eval
+          (list
+           (propertize "λ" 'face 'error)
+           " "
+           (propertize (my-modeline--major-mode-name) 'face 'bold)))
+      "Modeline contruct to display the major mode.")
+
+    (put 'my-modeline-major-mode 'risky-local-variable t)
+
+    (defvar-local my-modeline-minor-modes
+        '(:eval
+          (when (mode-line-window-selected-p)
+            (propertize (my-modeline-clean-minor-modes) 'face 'normal)))
+      "Modeline construct to display all the enabled minor modes")
+
+    (put 'my-modeline-minor-modes 'risky-local-variable t)
+
+  (defvar-local my-modeline-vc-state
+      '(:eval
+        (list
+         (propertize (vc-state (buffer-file-name (current-buffer))) 'face 'normal)
+         ":"
+         (propertize (vc-working-revision (buffer-file-name (current-buffer)))) 'face 'normal)))
+
+  (put 'my-modeline-vc-state 'risky-local-variable-p t)
+
+  (defvar-local my-modeline-modified-state
+      '(:eval
+        (when (buffer-modified-p)
+          (propertize " ☡ "
+                      'face '(:foreground "orange")
+                      'help-echo "buffer modified"))))
+
+  (put 'my-modeline-modified-state 'risky-local-variable-p t)
+
+#+end_src
+
+
+** Frame title
+#+begin_src emacs-lisp
+(setq frame-title-format
+      '(""
+        "%b"
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p) " ◉ %s" "  ●  %s - Emacs") project-name))))))
+#+end_src
+
+#+RESULTS:
+|   | %b | (:eval (let ((project-name (projectile-project-name))) (unless (string= - project-name) (format (if (buffer-modified-p)  ◉ %s   ●  %s - Emacs) project-name)))) |
+
+* Completion
+Vertical completion i.e. when using find-file:
+#+begin_src emacs-lisp
+  (ensure-package-installed 'vertico)
+  (when (require 'vertico nil :noerror)
+    (require 'vertico-directory)
+    (customize-set-variable 'vertico-cycle t)
+
+    ;; Start vertico
+    (vertico-mode 1))
+#+end_src
+
+#+RESULTS:
+: t
+
+[[https://en.wikipedia.org/wiki/Marginalia][Marginalia]] are marks or annotations placed at the margin of the
+page of a book or in this case helpful colorful annotations placed at the margin
+of the minibuffer for your completion candidates. Marginalia can only add
+annotations to the completion candidates. It cannot modify the appearance of the
+candidates themselves, which are shown unaltered as supplied by the original
+command.
+
+The annotations are added based on the completion category. For example
+=find-file= reports the =file= category and =M-x= reports the =command= category. You
+can cycle between more or less detailed annotators or even disable the annotator
+with command =marginalia-cycle=.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'marginalia)
+  (when (require 'marginalia nil :noerror)
+    (customize-set-variable 'marginalia-annotators
+                            '(marginalia-annotators-heavy
+                              marginalia-annotators-light
+                              nil))
+    (marginalia-mode 1))
+#+end_src
+
+#+RESULTS:
+: t
+
+[[https://github.com/oantolin/orderless][Orderless]]. An =orderless= /completion style/ that divides the
+pattern into space-separated components, and matches candidates that
+match all of the components in any order. Each component can match in
+any one of several ways: literally, as a regexp, as an initialism, in
+the flex style, or as multiple word prefixes. By default, regexp and
+literal matches are enabled.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'orderless)
+  (when (require 'orderless nil :noerror)
+    (customize-set-variable 'completion-styles '(orderless basic))
+    (customize-set-variable 'completion-category-overrides
+                            '((file (styles . (partial-completion))))))
+#+end_src
+
+#+RESULTS:
+| file | (styles partial-completion) |
+
+Embark makes it easy to choose a command to run based on what is near
+point, both during a minibuffer completion session (in a way familiar
+to Helm or Counsel users) and in normal buffers. Bind the command
+=embark-act= to a key and it acts like prefix-key for a keymap of
+/actions/ (commands) relevant to the /target/ around point. With point on
+an URL in a buffer you can open the URL in a browser or eww or
+download the file it points to. If while switching buffers you spot an
+old one, you can kill it right there and continue to select another.
+Embark comes preconfigured with over a hundred actions for common
+types of targets such as files, buffers, identifiers, s-expressions,
+sentences; and it is easy to add more actions and more target types.
+Embark can also collect all the candidates in a minibuffer to an
+occur-like buffer or export them to a buffer in a major-mode specific
+to the type of candidates, such as dired for a set of files, ibuffer
+for a set of buffers, or customize for a set of variables.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'embark)
+  (when (require 'embark nil :noerror)
+
+    (keymap-global-set "<remap> <describe-bindings>" #'embark-bindings)
+    (keymap-global-set "C-." 'embark-act)
+
+    ;; Use Embark to show bindings in a key prefix with `C-h`
+    (setq prefix-help-command #'embark-prefix-help-command)
+
+    (when (require 'embark-consult nil :noerror)
+      (with-eval-after-load 'embark-consult
+        (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
+#+end_src
+
+#+RESULTS:
+
+[[https://github.com/minad/corfu][Corfu]]. Corfu enhances in-buffer completion with a small completion popup. The current
+candidates are shown in a popup below or above the point. The candidates can be
+selected by moving up and down. Corfu is the minimalistic in-buffer completion
+counterpart of the [[https://github.com/minad/vertico][Vertico]] minibuffer UI.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'corfu)
+  (when (require 'corfu nil :noerror)
+
+    (unless (display-graphic-p)
+      (when (require 'corfu-terminal nil :noerror)
+        (corfu-terminal-mode +1)))
+
+    ;; Setup corfu for popup like completion
+    (customize-set-variable 'corfu-cycle t) ; Allows cycling through candidates
+    (customize-set-variable 'corfu-auto t)  ; Enable auto completion
+    (customize-set-variable 'corfu-auto-prefix 2) ; Complete with less prefix keys
+
+    (global-corfu-mode 1)
+    (when (require 'corfu-popupinfo nil :noerror)
+
+      (corfu-popupinfo-mode 1)
+      (eldoc-add-command #'corfu-insert)
+      (keymap-set corfu-map "M-p" #'corfu-popupinfo-scroll-down)
+      (keymap-set corfu-map "M-n" #'corfu-popupinfo-scroll-up)
+      (keymap-set corfu-map "M-d" #'corfu-popupinfo-toggle)))
+#+end_src
+
+#+RESULTS:
+: corfu-popupinfo-toggle
+
+[[https://github.com/minad/cape/tree/main][Cape]] provides Completion At Point Extensions which can be used in combination
+with [[https://github.com/minad/corfu][Corfu]], [[https://github.com/company-mode/company-mode][Company]] or the default completion UI. The completion backends used
+by ~completion-at-point~ are so called ~completion-at-point-functions~ (Capfs).
+#+begin_src emacs-lisp
+  (ensure-package-installed 'cape)
+  (when (require 'cape nil :noerror)
+    ;; Setup Cape for better completion-at-point support and more
+
+    ;; Add useful defaults completion sources from cape
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+
+    ;; Silence the pcomplete capf, no errors or messages!
+    ;; Important for corfu
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+    ;; Ensure that pcomplete does not write to the buffer
+    ;; and behaves as a pure `completion-at-point-function'.
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+#+end_src
+
+#+RESULTS:
+
+* IDE settings
+
+The package [[https://github.com/editorconfig/editorconfig-emacs][editorconfig]] is a cross-editor/ide configuration tool to control
+indentation, spaces vs tabs, etc., while [[https://elpa.gnu.org/packages/aggressive-indent.html][aggressive-indent]] is a minor mode to always keep your code indented while editing blocks of code.
+As most development is done on projects, add [[https://melpa.org/#/ibuffer-project][ibuffer-project]] to
+group project buffers together when listing buffers with ibuffer.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'editorconfig 'aggressive-indent 'ibuffer-project)
+  (defun add-eglot-hooks (mode-list)
+    "Add `eglot-ensure' to modes in MODE-LIST.
+
+  The mode must be loaded, i.e. found with `fboundp'. A mode which
+  is not loaded will not have a hook added, in which case add it manually
+  with something like this:
+
+  `(add-hook 'some-mode-hook #'eglot-ensure)'"
+    (dolist (mode-def mode-list)
+      (let ((mode (if (listp mode-def) (car mode-def) mode-def)))
+        (cond
+         ((listp mode) (add-eglot-hooks mode))
+         (t
+          (when (and (fboundp mode)
+                     (not (eq 'clojure-mode mode))
+                     (not (eq 'lisp-mode mode))
+                     (not (eq 'scheme-mode mode))
+                     )
+            (let ((hook-name (format "%s-hook" (symbol-name mode))))
+              (message "adding eglot to %s" hook-name)
+              (add-hook (intern hook-name) #'eglot-ensure))))))))
+
+
+  (with-eval-after-load "eglot"
+    (add-eglot-hooks eglot-server-programs))
+#+end_src
+
+#+RESULTS:
+
+[[https://elpa.gnu.org/packages/kind-icon.html][kind-icon]] adds an colorful icon or text prefix based on
+:company-kind for compatible completion UI's.  The "kind" prefix is
+typically used for differentiating completion candidates such as
+variables, functions, etc.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'kind-icon)
+  (custom-set-faces '(kind-icon-default-face corfu-default))
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+#+end_src
+
+#+RESULTS:
+| kind-icon-margin-formatter |
+
+* Org Mode Settings
+** No Confirmation anymore
+#+begin_src emacs-lisp
+  (setq org-confirm-babel-evaluate nil)
+#+end_src
+
+#+RESULTS:
+
+** Visual Configuration
+:PROPERTIES:
+:CUSTOM_ID: Org-Mode-Settings-Visual-Configuration
+:END:
+I have an issue with org-mode’s emphasis markers: I find them ugly.
+I can of course hide them if I simply set ~org-hide-emphasis-markers~ to ~t~, but it makes
+editing hard since I never know whether I am before or
+after the emphasis marker when editing near the beginning/end of an emphasized region.
+org-appear fixes this issue so that it shows the emphasis markers only when
+the cursor is in the emphasized region, otherwise they will remain hidden! Very cool!
+I Also want a more modern look for ~org-mode~, so lets's enable ~org-modern~.
+#+begin_src emacs-lisp
+  (ensure-package-installed 'org-appear)
+
+  (setq org-appear-autoemphasis t
+        org-hide-emphasis-markers t
+        org-appear-autolinks t
+        org-appear-autoentities t
+        org-appear-autosubmarkers t)
+
+  (ensure-package-installed 'org-modern)
+  (add-hooks-pair '(org-mode) '(org-appear-mode org-modern-mode))
+#+end_src
+
+#+RESULTS:
+
+For my personal configuration I decided to hide source-code-blocks in org-mode per default.
+
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook 'org-hide-block-all)
+#+end_src
+
+#+RESULTS:
+| org-hide-block-all | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | org-modern-mode | org-appear-mode |
+
+** Org Agenda
+:PROPERTIES:
+:CUSTOM_ID: Org-Mode-Settings-Org-Agenda
+:END:
+
+#+begin_src emacs-lisp
+  (setq org-agenda-files `(,(concat user-emacs-directory "todo.org")))
+#+end_src
+
+** Babel
+:PROPERTIES:
+:CUSTOM_ID: Org-Mode-Settings-Babel
+:END:
+
+One of the amazing features of org-mode is its literary programming capacities
+by running code blocks from within Org-mode itself. But for that, only a couple
+of languages are supported directly by Org-mode itself, and they need to be
+activated. Here are the languages I activated in my Org-mode configuration:
+
+#+NAME: org-babel-languages-table
+| C          |
+| emacs-lisp |
+| latex      |
+| makefile   |
+| python     |
+| shell      |
+| js         |
+| haskell    |
+| erlang     |
+
+The corresponding code is as follows:
+#+NAME: org-babel-load-languages
+#+begin_src emacs-lisp
+  (require 'ob-erlang)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((C . t)
+     (emacs-lisp .t)
+     (latex . t)
+     (makefile . t)
+     (shell . t)
+     (python . t)
+     (js . t)
+     (haskell . t)
+     (erlang . t)))
+   #+end_src
+
+#+RESULTS: org-babel-load-languages
+
+* Dired Mode
+:PROPERTIES:
+:CUSTOM_ID: Dired-Mode
+:PROPERTIES:
+#+begin_src emacs-lisp
+  (ensure-package-installed 'all-the-icons-dired)
+  (add-hooks-pair '(dired-mode) '(all-the-icons-dired-mode dired-hide-details-mode))
+#+end_src
+
+#+RESULTS:
+
+Open files from dired-mode via shortcut
+#+begin_src emacs-lisp
+  (ensure-package-installed 'openwith)
+
+  (when (require 'openwith nil 'oerror)
+    (setq openwith-associations
+          (list
+           (list (openwith-make-extension-regexp
+                  '("pdf" "ps" "ps.gz" "dvi"))
+                 "zathura"
+                 '(file))))
+    (openwith-mode 1))
+#+end_src
+
+** Dired Compress Alist
+
+#+begin_src emacs-lisp
+  (customize-set-variable 'dired-compress-file-alist
+                          '(("\\.tar\\.gz\\'" . "tar -c %i | gzip -c9 > %o")
+                            ("\\.zip\\'" . "zip %o -r --filesync %i")))
+#+end_src
+* Eshell
+:PROPERTIES:
+:CUSTOM_ID: Eshell
+:END:
+** Basics
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Basics
+:END:
+*** Prompt
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Basics-Prompt
+:END:
+#+begin_src emacs-lisp
+  (ensure-package-installed 'eshell)
+  (setq eshell-prompt-function
+        (lambda ()
+          (concat (abbreviate-file-name (eshell/pwd))
+                  (if (= (user-uid) 0) " # " " λ ")))
+        eshell-prompt-regexp "^[^#λ\n]* [#λ] ")
+
+  (ensure-package-installed 'eshell-syntax-highlighting)
+  (eshell-syntax-highlighting-global-mode +1)
+#+end_src
+*** Correct Path
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Basics-Correct-Path
+:END:
+Need the correct /PATH/ even when we start emacs from GUI
+#+begin_src emacs-lisp
+  (setenv "PATH"
+          (concat "/usr/local/bin:/usr/local/sbin:"
+                  (getenv "PATH")))
+#+end_src
+*** Pager Setup
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Basics-Pager-Setup
+:END:
+If any program wants to pause the output through the ~$PAGER~ variable, well, we don't
+really need that:
+
+#+begin_src emacs-lisp
+  (setenv "PAGER" "cat")
+#+end_src
+
+** Configuration
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Configuration
+:END:
+Scrolling through the output and searching for results that can be copied to the
+kill ring is a great feature of Eshell. However, instead of running end-of-buffer
+key-binding, the following setting means any other key will jump back to the prompt:
+#+begin_src emacs-lisp
+  (setq ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
+          eshell-scroll-to-bottom-on-input 'all
+          eshell-error-if-no-glob t
+          eshell-hist-ignoredups t
+          eshell-save-history-on-exit t
+          eshell-prefer-lisp-functions nil
+          eshell-destroy-buffer-when-process-dies t)
+#+end_src
+
+I can never seem to remember that ~find~ and ~chmod~ behave differently from Emacs
+than their Unix counterparts, so the last setting will prefer the native
+implementations.
+
+** Visual Executables
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Visual-Executables
+:END:
+Eshell would get somewhat confused if I ran the following commands
+directly through the normal Elisp library, as these need the better
+handling of ansiterm:
+
+#+begin_src emacs-lisp
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (add-to-list 'eshell-visual-commands "ssh")
+              (add-to-list 'eshell-visual-commands "tail")
+              (add-to-list 'eshell-visual-commands "top")))
+#+end_src
+
+** Aliases
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Aliases
+:END:
+Gotta have some aliases, right?
+
+#+begin_src emacs-lisp
+  (add-hook 'eshell-mode-hook (lambda ()
+      (eshell/alias "ff" "find-file $1")
+      (eshell/alias "ffo" "find-file-other-window $1")
+
+      (eshell/alias "gd" "magit-diff-unstaged")
+      (eshell/alias "gds" "magit-diff-staged")
+      (eshell/alias "d" "dired $1")))
+#+end_src
+
+** Clear
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Clear
+:END:
+While deleting and recreating eshell may be just as fast,
+I always forget and type clear, so let’s implement it:
+
+#+begin_src emacs-lisp
+  (defun eshell/clear ()
+  "Clear the eshell buffer."
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (eshell-send-input)))
+#+end_src
+** Predicate Filters and Modifiers
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Predicate-Filters
+:END:
+
+  The =T= predicate filter allows me to limit file results that have
+  have internal =org-mode= tags. For instance, files that have a
+  =#+TAGS:= header with a =mac= label will be given to the =grep=
+  function:
+
+  #+BEGIN_SRC sh
+     $ grep brew *.org(T'mac')
+  #+END_SRC
+
+  To extend Eshell, we need a two-part function.
+  1. Parse the Eshell buffer to look for the parameter
+     (and move the point past the parameter).
+  2. A predicate function that takes a file as a parameter.
+
+  For the first step, we have our function /called/ as it helps
+  parse the text at this time.  Based on what it sees, it returns
+  the predicate function used to filter the files:
+
+  #+BEGIN_SRC emacs-lisp
+    (defun eshell-org-file-tags ()
+      "Helps the eshell parse the text the point is currently on,
+    looking for parameters surrounded in single quotes. Returns a
+    function that takes a FILE and returns nil if the file given to
+    it doesn't contain the org-mode #+TAGS: entry specified."
+
+      (if (looking-at "'\\([^)']+\\)'")
+          (let* ((tag (match-string 1))
+                 (reg (concat "^#\\+TAGS:.* " tag "\\b")))
+            (goto-char (match-end 0))
+
+            `(lambda (file)
+               (with-temp-buffer
+                 (insert-file-contents file)
+                 (re-search-forward ,reg nil t 1))))
+        (error "The `T' predicate takes an org-mode tag value in single quotes.")))
+  #+END_SRC
+
+  Add it to the =eshell-predicate-alist= as the =T= tag:
+
+  #+BEGIN_SRC emacs-lisp
+    (add-hook 'eshell-pred-load-hook (lambda ()
+      (add-to-list 'eshell-predicate-alist '(?T . (eshell-org-file-tags)))))
+  #+END_SRC
+
+  *Note:* We can’t add it to the list until after we start our first
+  eshell session, so we just add it to the =eshell-pred-load-hook=
+  which is sufficient.
+
+** Tramp
+:PROPERTIES:
+:CUSTOM_ID: Eshell-Tramp
+:END:
+#+begin_src emacs-lisp
+  (require 'tramp)
+  (setq tramp-default-method "ssh")
+#+end_src
+
+** Better Commandline History
+
+#+begin_src emacs-lisp
+  (defun eshell-next-prompt (n)
+    "Move to end of Nth next prompt in the buffer. See `eshell-prompt-regexp'."
+    (interactive "p")
+    (re-search-forward eshell-prompt-regexp nil t n)
+    (when eshell-highlight-prompt
+      (while (not (get-text-property (line-beginning-position) 'read-only) )
+        (re-search-forward eshell-prompt-regexp nil t n)))
+    (eshell-skip-prompt))
+
+  (defun eshell-previous-prompt (n)
+    "Move to end of Nth previous prompt in the buffer. See `eshell-prompt-regexp'."
+    (interactive "p")
+    (backward-char)
+    (eshell-next-prompt (- n)))
+
+  (defun eshell-insert-history ()
+    "Displays the eshell history to select and insert back into your eshell."
+    (interactive)
+    (insert (ido-completing-read "Eshell history: "
+                                 (delete-dups
+                                  (ring-elements eshell-history-ring)))))
+
+  (global-unset-key (kbd "M-r"))
+
+  (add-hook 'eshell-mode-hook (lambda ()
+                                (define-key eshell-mode-map (kbd "M-S-P") 'eshell-previous-prompt)
+                                (define-key eshell-mode-map (kbd "M-S-N") 'eshell-next-prompt)
+                                (define-key eshell-mode-map (kbd "M-r") 'eshell-insert-history)))
+#+end_src
+
+** Eshell Here
+
+#+begin_src emacs-lisp
+  (defun eshell-here ()
+    "Opens up a new shell in the directory associated wih the
+  current buffer's file. The eshell is renamed to match that
+  directory to make multiple eshell windows easier."
+    (interactive)
+    (let* ((parent (if (buffer-file-name)
+                       (file-name-directory (buffer-file-name))
+                     default-directory))
+           (height (/ (window-total-height) 3))
+           (name (car (last (split-string parent "/")))))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (eshell "new")
+      (rename-buffer (concat "*eshell: " name "*"))
+
+      (insert (concat "ls"))
+      (eshell-send-input)))
+
+  (bind-key "C-!" 'eshell-here)
+#+end_src
+* Emacs Lisp settings
+#+begin_src emacs-lisp
+  (ensure-package-installed 'rainbow-delimiters 'lispy)
+  (add-hooks-pair '(emacs-lisp-mode)
+                  '(rainbow-delimiters-mode
+                    electric-pair-mode
+                    lispy-mode))
+#+end_src
+
+#+RESULTS:
+
+* Set path
+* Denotes
+** Denote Configuration
+#+begin_src emacs-lisp
+  (ensure-package-installed 'denote)
+
+  (setq notes-directory "~/.emacs.d/denotes")
+  (setq denote-known-keywords '("haskell" "emacs" "programming"))
+
+  (with-eval-after-load 'org-capture
+    (add-to-list 'org-capture-templates
+                 '("n" "New note (with Denote)" plain
+                   (file denote-last-path)
+                   #'denote-org-capture
+                   :no-save t
+                   :immediate-finish nil
+                   :kill-buffer t
+                   :jump-to-captured t)))
+
+  (require 'denote-org-dblock)
+
+  (customize-set-variable 'denote-directory (eval notes-directory))
+  (customize-set-variable 'denote-known-keywords
+                          '("emacs"
+                            "programming"
+                            "linux"
+                            "education"
+                            "pwn"))
+
+  (add-hook 'dired-mode-hook (lambda () (denote-dired-mode 1)))
+
+#+end_src
+** Denote Keybindings
+
+#+name: denote-bindings
+| Keybinding | Function                              |
+|------------+---------------------------------------|
+| C-c w n    | denote-create-note                    |
+| C-c w j    | denote-date                           |
+| C-c w i    | denote-link-or-create                 |
+| C-c w l    | denote-find-link                      |
+| C-c w b    | denote-find-backlink                  |
+| C-c w D    | denote-org-dblock-insert-link         |
+| C-c w r    | denote-rename-file-using-front-matter |
+| C-c w R    | denote-rename-file                    |
+| C-c w k    | denote-keywords-add                   |
+| C-c w K    | denote-keywords-remove                |
+
+#+name: denote-bindings-gen
+#+begin_src emacs-lisp :var table=denote-bindings function="denote-create-note"
+  (let ((keybind (seq-some (lambda (e) (and (string= function (nth 1 e)) (car e))) table))) keybind)
+#+end_src
+
+#+begin_src emacs-lisp :noweb yes
+  (require 'denote-org-dblock)
+
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-create-note")>>") #'denote-create-note)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-date")>>") #'denote-date)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-link-or-create")>>") #'denote-link-or-create)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-find-link")>>") #'denote-find-link)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-find-backlink")>>") #'denote-find-backlink)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-org-dblock-insert-link")>>") #'denote-org-dblock-insert-links)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-rename-file-using-front-matter")>>") #'denote-rename-file-using-front-matter)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-rename-file")>>") #'denote-rename-file)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-keywords-add")>>") #'denote-keywords-add)
+  (global-set-key (kbd "<<denote-bindings-gen(function="denote-keywords-remove")>>") #'denote-keywords-remove)
+#+end_src
+** Denote extensions
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'consult-notes)
+  (customize-set-variable 'consult-notes-file-dir-sources
+                          `(("Denote" ?d ,notes-directory)))
+#+end_src
+* Openwith associations
+Openwith is a simple but very useful package to make Emacs associate various file types with external applications.
+For example, Emacs can open PDFs, but you may want to open them with a dedicated PDF viewer instead.
+With openwith, you can do this seamlessly when you use C-x C-f.
+It also works with recentf and ido.
+
+#+begin_src emacs-lisp
+  (when (require 'openwith nil 'noerror)
+    (setq openwith-associations
+          (list
+           (list (openwith-make-extension-regexp
+                  '("pdf" "dvi" "eps"))
+                 "zathura"
+                 '(file))))
+    (openwith-mode 1))
+#+end_src
+* Tools
+:PROPERTIES:
+:CUSTOM_ID: Tools
+:END:
+
+** r2pipe
+:PROPERTIES:
+:CUSTOM_ID: Tools-r2pipe
+:END:
+
+I decided to improve the a pre-existing library, that lets you interact with
+radare2. It's prior intention was to replace the famous [[https://github.com/david942j/one_gadget][one_gadget]]
+appliction.
+
+#+begin_src emacs-lisp
+  (defgroup r2pipe nil
+    "Run and interact with radare2 under Emacs."
+    :prefix "r2pipe-"
+    :group 'tools)
+
+  (defcustom r2-bin-path "/usr/bin/r2"
+    "The path to standard radare2 program.")
+
+  (setq r2pipe-latest-output nil)
+
+  ;; Necessary to convert json to property list and
+  ;; list, respectively
+  (setq json-object-type 'plist
+        json-array-type 'list)
+
+  (defun r2--copy-output-filter (process output)
+    (setq r2pipe-latest-output output))
+
+  (defun r2open (file)
+    "Opens a new r2pipe connected to a r2 process connected
+    which is inspecting `FILE'"
+    (make-process :name "r2pipe" :buffer "*r2pipe*"
+                  :command (list r2-bin-path "-q0" file)
+                  :connection-type 'pipe
+                  :filter 'r2--copy-output-filter
+                  :stderr (get-buffer-create "*r2pipe-stderr*")))
+
+  (defun r2write (process cmd)
+    "Send a `CMD' via r2pipe to a `PROCESS'"
+    (process-send-string process (concat cmd "\n")))
+
+  (defun r2cmd (process cmd)
+    (r2write process cmd)
+    (sit-for 0.5)
+    r2pipe-latest-output)
+
+  (defun r2cmd-json (process cmd)
+    (json-read-from-string (r2cmd process cmd)))
+
+  (defun r2pipe-find-string (process string)
+    (cond ((stringp string)
+           (plist-get (car (r2cmd-json process (format "/j %s" string))) :offset))
+          (t
+           (message "Wrong type argument for string"))))
+
+  (defun r2pipe-find-xrefs (process obj-addr)
+    (r2cmd-json process (format "axtj @ %s~lea rdi" obj-addr)))
+
+  (defun r2pipe-search-magic-gadgets (xrefs)
+    (seq-filter (lambda (elem) (string-prefix-p "lea rdi" (plist-get elem :opcode))) xrefs))
+
+  (defun r2pipe-offset-magic-gadgets (gadgets)
+    (setq offsets (mapcar (lambda (elem) (plist-get elem :from)) gadgets))
+    offsets)
+
+  (defun r2pipe-disassemble-gadget (process offset)
+    (setq result (r2cmd-json process (format "pducj @ %s" offset)) result))
+
+  (defun r2pipe-magic-gadgets (process)
+    (progn
+      (setq binsh (r2pipe-find-string process "/bin/sh"))
+      (setq xrefs (r2pipe-find-xrefs process binsh))
+      (setq magic-gadgets (r2pipe-search-magic-gadgets xrefs))
+      (setq offsets (r2pipe-offset-magic-gadgets magic-gadgets)))
+    offsets)
+
+  (defun r2pipe-output ()
+    (interactive)
+    (progn
+      (setq candidates (split-string r2pipe-latest-output "\n" t))
+      (ivy-read "Info: " candidates
+                :re-builder #'ivy--regex-fuzzy
+                :action #'insert
+                :caller 'r2pipe-output)))
+
+#+end_src
+
+** TODO Lean Prover
+
+#+begin_src emacs-lisp
+
+  (setq load-path (cons "/home/void/.emacs.d/lisp/lean4-mode/" load-path))
+
+  (setq lean4-mode-required-packages '(dash f flycheck lsp-mode magit-section s))
+
+  (let ((need-to-refresh t))
+    (dolist (p lean4-mode-required-packages)
+      (when (not (package-installed-p p))
+        (when need-to-refresh
+          (package-refresh-contents)
+          (setq need-to-refresh nil))
+        (package-install p))))
+
+  (require 'lean4-mode)
+
+  (customize-set-variable 'lean4-rootdir "~/.elan/toolchains/stable/")
+#+end_src

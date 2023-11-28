@@ -9,14 +9,14 @@
     - name: Enable multilib
       community.general.xbps:
         name:
-          -void-repo-nonfree
+          - void-repo-nonfree
           - void-repo-multilib
           - void-repo-multilib-nonfree
 
   roles:
     # - { role: base, tags: base }
     # - { role: kernel, tags: kernel}
-    # - { role: desktop, tags: emacs }
+    # - { role: desktop, tags: desktop }
     # - { role: flatpak, tags: flatpak }
     # - { role: temp, tags: temp }
     # - { role: runit, tags: runit }
