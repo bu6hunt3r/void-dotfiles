@@ -1,0 +1,63 @@
+---
+- include_tasks: check_for_unzip.yml
+
+- name: Install needed packages
+  community.general.xbps:
+    name: '{{ item }}'
+  loop:
+    - stow
+    - zsh
+    - curl
+    - antibody
+    - direnv
+    - fzf
+    - grc
+    - tree
+    - tmux
+    - cargo
+- name: Build directories list
+  find:
+    paths: [dotfiles/]
+    recurse: no
+    file_type: directory
+  register: files
+
+- name: Deploy dotfiles
+  become_user: '{{user}}'
+  become: yes
+  with_items: '{{files.files}}'
+  shell: |
+    STOW_PATH={{item.path | replace("dotfiles/", "")}}
+    OVERRIDE=$(cat ${STOW_PATH}/.override 2>/dev/null)
+    VOID_HOME=$(getent passwd void | cut -d: -f6)
+    stow -v --ignore "\.override" -t ${OVERRIDE:-$VOID_HOME} ${STOW_PATH}
+  args:
+    chdir: ./dotfiles
+    executable: /bin/bash
+
+# - name: Install cargo for rust
+#   community.general.xbps:
+#   name: cargo
+
+# - name: Add cargo's path to .profile
+#   lineinfile:
+#     path: /home/void/.profile
+#     line: "export PATH=/home/void/.cargo/bin:$PATH"
+#     owner: void
+#     group: void
+
+- name: Clone yasnippet repository
+  git:
+    repo: https://github.com/joaotavora/yasnippet.git
+    dest: /home/{{user}}/.emacs.d/yasnippet
+    clone: yes
+    update: no
+  become: yes
+  become_user: '{{user}}'
+
+- name: Fetch nanorc sources
+  get_url:
+    url: https://github.com/scopatz/nanorc/archive/master.zip
+    dest: /tmp/nanorc.zip
+    mode: 0440
+  when: is_unzip_exist|success
