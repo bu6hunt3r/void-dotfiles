@@ -23,8 +23,8 @@ an absurd amount of Emacs packages.
 #+begin_src emacs-lisp
   (require 'package)
   (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-                         ("gnu"    . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+			 ("gnu"    . "https://elpa.gnu.org/packages/")
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
   (setq warning-minimum-level :emergency)
   (package-initialize)
@@ -38,13 +38,13 @@ stuff.
 #+begin_src emacs-lisp
   (defun ensure-package-installed (&rest packages)
     (let ((user-required-packages
-           (seq-remove
-            (lambda (package) (package-installed-p package))
-            packages)))
+	   (seq-remove
+	    (lambda (package) (package-installed-p package))
+	    packages)))
       (when user-required-packages
-        (package-refresh-contents)
-        (dolist (package user-required-packages)
-          (package-install package)))))
+	(package-refresh-contents)
+	(dolist (package user-required-packages)
+	  (package-install package)))))
 #+end_src
 
 #+RESULTS:
@@ -71,9 +71,9 @@ as possible some built-in features of Emacs before they can be even
 loaded, speeding Emacs up a bit.
 #+begin_src emacs-lisp :mkdirp yes
   (setq package-enable-at-startup nil
-        inhibit-startup-message   t
-        frame-resize-pixelwise    t  ; fine resize
-        package-native-compile    t) ; native compile packages
+	inhibit-startup-message   t
+	frame-resize-pixelwise    t  ; fine resize
+	package-native-compile    t) ; native compile packages
   (scroll-bar-mode -1)               ; disable scrollbar
   (tool-bar-mode -1)                 ; disable toolbar
   (tooltip-mode -1)                  ; disable tooltips
@@ -137,7 +137,7 @@ Lastly, I want the default mode for Emacs to be Emacs Lisp.
 :END:
 #+begin_src emacs-lisp :noweb yes
   (dolist (mode '(<<prog-modes-gen()>>))
-          (add-hook mode #'hs-minor-mode))
+	  (add-hook mode #'hs-minor-mode))
 #+end_src
 
 #+RESULTS:
@@ -177,8 +177,8 @@ fit mine, so on top of ~prog-mode~, let’s add a few other modes.
 #+header: :cache yes :exports none :tangle no
 #+begin_src emacs-lisp :var modes=line-number-modes-table
 (mapconcat (lambda (mode) (format "%s-hook" (car mode)))
-           modes
-           " ")
+	   modes
+	   " ")
 #+end_src
 
 #+RESULTS[427c457ba74530bb013e80aa28e15f5621f8e2c5]: prog-modes-gen
@@ -219,7 +219,7 @@ it looks really uncomfortable! This is why I prefer to tell Emacs to
 keep its backup files to itself in a directory it only will access.
 #+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . ,(expand-file-name ".tmp/backups/"
-                                                         user-emacs-directory))))
+							 user-emacs-directory))))
 #+end_src
 
 #+RESULTS:
@@ -297,7 +297,7 @@ single declarative call (inspired by the ~bind-key~ package).
     "Like `find-file', but opens file as root."
     (interactive "Fsudo find file: ")
     (let ((tramp-file-name
-           (concat "/sudo::" (expand-file-name file-name))))
+	   (concat "/sudo::" (expand-file-name file-name))))
       (find-file tramp-file-name)))
 #+end_src
 ** Text scaling
@@ -321,20 +321,20 @@ Here’s one such example — but please experiment, as it’s rather easy to al
      "Print flycheck messages at point by calling CALLBACK."
      (when-let ((flycheck-errors (and flycheck-mode (flycheck-overlay-errors-at (point)))))
        (mapc
-        (lambda (err)
-          (funcall callback
-             (format "%s: %s"
-                     (let ((level (flycheck-error-level err)))
-                       (pcase level
-                         ('info (propertize "I" 'face 'flycheck-error-list-info))
-                         ('error (propertize "E" 'face 'flycheck-error-list-error))
-                         ('warning (propertize "W" 'face 'flycheck-error-list-warning))
-                         (_ level)))
-                     (flycheck-error-message err))
-             :thing (or (flycheck-error-id err)
-                        (flycheck-error-group err))
-             :face 'font-lock-doc-face))
-        flycheck-errors)))
+	(lambda (err)
+	  (funcall callback
+	     (format "%s: %s"
+		     (let ((level (flycheck-error-level err)))
+		       (pcase level
+			 ('info (propertize "I" 'face 'flycheck-error-list-info))
+			 ('error (propertize "E" 'face 'flycheck-error-list-error))
+			 ('warning (propertize "W" 'face 'flycheck-error-list-warning))
+			 (_ level)))
+		     (flycheck-error-message err))
+	     :thing (or (flycheck-error-id err)
+			(flycheck-error-group err))
+	     :face 'font-lock-doc-face))
+	flycheck-errors)))
 
   (ensure-package-installed 'flycheck)
   (add-hook 'eldoc-documentation-functions #'mp-flycheck-eldoc nil t)
@@ -347,7 +347,7 @@ Flymake used Eglot now by default.
 #+begin_src emacs-lisp
   (defun mp-eglot-eldoc ()
     (setq eldoc-documentation-strategy
-          'eldoc-documentation-compose-eagerly))
+	  'eldoc-documentation-compose-eagerly))
 
   (add-hook 'eglot-managed-mode-hook 'mp-eglot-eldoc)
 #+end_src
@@ -356,8 +356,8 @@ Dedicated Eldoc Documentation Buffer
 
 #+begin_src emacs-lisp
   (add-to-list 'display-buffer-alist
-               '("^\\*eldoc for" display-buffer-at-bottom
-                 (window-height . 4)))
+	       '("^\\*eldoc for" display-buffer-at-bottom
+		 (window-height . 4)))
 #+end_src
 
 * Keybinding Management
@@ -405,12 +405,12 @@ they are much more comfortable than Emacs’.
     (custom-set-variables
      '(undo-tree-history-directory-alist `(("." . ,(expand-file-name (file-name-as-directory "undo-tree-hist") user-emacs-directory)))))
     (setq undo-tree-visualizer-diff       t
-            undo-tree-visualizer-timestamps t
-            undo-tree-auto-save-history     t
-            undo-tree-enable-undo-in-region t
-            undo-limit        (* 800 1024)
-            undo-strong-limit (* 12 1024 1024)
-            undo-outer-limit  (* 128 1024 1024))
+	    undo-tree-visualizer-timestamps t
+	    undo-tree-auto-save-history     t
+	    undo-tree-enable-undo-in-region t
+	    undo-limit        (* 800 1024)
+	    undo-strong-limit (* 12 1024 1024)
+	    undo-outer-limit  (* 128 1024 1024))
 #+end_src
 
 #+RESULTS:
@@ -523,8 +523,8 @@ don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~
   (defun my/set-font ()
     (when (find-font (font-spec :name my/default-font-name))
       (set-face-attribute 'default nil
-                          :font my/default-font-name
-                          :height my/default-font-size)))
+			  :font my/default-font-name
+			  :height my/default-font-size)))
 
   (my/set-font)
   (add-hook 'server-after-make-frame-hook #'my/set-font)
@@ -538,18 +538,18 @@ don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~
 #+begin_src emacs-lisp
   (ensure-package-installed 'ligature)
   (ligature-set-ligatures '(prog-mode eldoc-mode) '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                         ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                         "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                         "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                         "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                         "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                         "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                         "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                         ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                         "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                         "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                         "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                         "\\\\" "://"))
+					 ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+					 "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+					 "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+					 "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+					 "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+					 "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+					 "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+					 ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+					 "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+					 "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+					 "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+					 "\\\\" "://"))
   (global-ligature-mode)
 #+end_src
 
@@ -588,97 +588,98 @@ don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~
 Don't want a bloated modeline in Emacs, so I decided to use this one:
 #+begin_src emacs-lisp
 
-    ;; (ensure-package-installed 'simple-modeline)
-    ;; (simple-modeline-mode)
+      ;; (ensure-package-installed 'simple-modeline)
+      ;; (simple-modeline-mode)
 
-    (defvar mode-line-cleaner-alist
-      `((auto-complete-mode . " α")
-        (yas-minor-mode . " γ")
-        (paredit-mode . " Φ")
-        (undo-tree-mode . " ψ")
-        (corfu-mode . " χ")
-        (org-appear-mode . " ο")
-        (evil-local-mode . " ξ"))
-      "Alist for `clean-mode-line")
+      (defvar mode-line-cleaner-alist
+	`((auto-complete-mode . " α")
+	  (yas-minor-mode . " γ")
+	  (paredit-mode . " Φ")
+	  (undo-tree-mode . " ψ")
+	  (corfu-mode . " χ")
+	  (org-appear-mode . " ο")
+	  (evil-local-mode . " ξ"))
+	"Alist for `clean-mode-line")
 
-    (defvar-local cleaned-minor-modes
-        "Cleaned List of Minor Modes.")
+      (defvar-local cleaned-minor-modes
+	  "Cleaned List of Minor Modes.")
 
-    (defun my-modeline-active-minor-mode-p ()
-      (let ((active-minor-modes minor-mode-list))))
+      (defun my-modeline-active-minor-mode-p ()
+	(let ((active-minor-modes minor-mode-list))))
 
-    (defun my-modeline--minor-mode-p (mode)
-      (alist-get mode mode-line-cleaner-alist))
+      (defun my-modeline--minor-mode-p (mode)
+	(alist-get mode mode-line-cleaner-alist))
 
-    (defun my-modeline--minor-mode-get-keys ()
-      (cons cleaned-minor-modes ))
+      (defun my-modeline--minor-mode-get-keys ()
+	(cons cleaned-minor-modes ))
 
-    (defun my-modeline-clean-minor-modes ()
-      (let* ((active-minor-modes (seq-filter #'my-modeline--minor-mode-p minor-mode-list)))
-        (mapconcat 'identity (mapcar (lambda (e)
-                                       (alist-get e mode-line-cleaner-alist)) active-minor-modes))))
+      (defun my-modeline-clean-minor-modes ()
+	(let* ((active-minor-modes (seq-filter #'my-modeline--minor-mode-p minor-mode-list)))
+	  (mapconcat 'identity (mapcar (lambda (e)
+					 (alist-get e mode-line-cleaner-alist)) active-minor-modes))))
 
-  ;; (setq cleaned-minor-modes (mapconcat 'identity (my-modeline-clean-minor-modes)))
+    ;; (setq cleaned-minor-modes (mapconcat 'identity (my-modeline-clean-minor-modes)))
 
-  ;; (my-modeline-clean-minor-modes)
+    ;; (my-modeline-clean-minor-modes)
 
-  (setq-default mode-line-format
-                '("%e"
-                  mode-line-end-spaces
-                  "  "
-                  my-modeline-buffer-name
-                  "  "
-                  my-modeline-major-mode
-                  "  "
-                  my-modeline-minor-modes
-                  ))
+    (setq-default mode-line-format
+		  '(" "
+		    "%e"
+		    mode-line-end-spaces
+		    "  "
+		    my-modeline-buffer-name
+		    "  "
+		    my-modeline-major-mode
+		    "  "
+		    my-modeline-minor-modes
+		    ))
 
-    (defun my-modeline--major-mode-name ()
-      "Return capitalized `major-mode' as string."
-      (capitalize (symbol-name major-mode)))
+      (defun my-modeline--major-mode-name ()
+	"Return capitalized `major-mode' as string."
+	(capitalize (symbol-name major-mode)))
 
-    (defvar-local my-modeline-buffer-name
-        '(:eval
-          (when (mode-line-window-selected-p)
-            (propertize (buffer-name) 'face 'error))))
+      (defvar-local my-modeline-buffer-name
+	  '(:eval
+	    (when (mode-line-window-selected-p)
+	      (propertize (buffer-name) 'face 'error))))
 
-    (put 'my-modeline-buffer-name 'risky-local-variable t)
+      (put 'my-modeline-buffer-name 'risky-local-variable t)
 
-    (defvar-local my-modeline-major-mode
-        '(:eval
-          (list
-           (propertize "λ" 'face 'error)
-           " "
-           (propertize (my-modeline--major-mode-name) 'face 'bold)))
-      "Modeline contruct to display the major mode.")
+      (defvar-local my-modeline-major-mode
+	  '(:eval
+	    (list
+	     (propertize "λ" 'face 'error)
+	     " "
+	     (propertize (my-modeline--major-mode-name) 'face 'bold)))
+	"Modeline contruct to display the major mode.")
 
-    (put 'my-modeline-major-mode 'risky-local-variable t)
+      (put 'my-modeline-major-mode 'risky-local-variable t)
 
-    (defvar-local my-modeline-minor-modes
-        '(:eval
-          (when (mode-line-window-selected-p)
-            (propertize (my-modeline-clean-minor-modes) 'face 'normal)))
-      "Modeline construct to display all the enabled minor modes")
+      (defvar-local my-modeline-minor-modes
+	  '(:eval
+	    (when (mode-line-window-selected-p)
+	      (propertize (my-modeline-clean-minor-modes) 'face 'normal)))
+	"Modeline construct to display all the enabled minor modes")
 
-    (put 'my-modeline-minor-modes 'risky-local-variable t)
+      (put 'my-modeline-minor-modes 'risky-local-variable t)
 
-  (defvar-local my-modeline-vc-state
-      '(:eval
-        (list
-         (propertize (vc-state (buffer-file-name (current-buffer))) 'face 'normal)
-         ":"
-         (propertize (vc-working-revision (buffer-file-name (current-buffer)))) 'face 'normal)))
+    (defvar-local my-modeline-vc-state
+	'(:eval
+	  (list
+	   (propertize (vc-state (buffer-file-name (current-buffer))) 'face 'normal)
+	   ":"
+	   (propertize (vc-working-revision (buffer-file-name (current-buffer)))) 'face 'normal)))
 
-  (put 'my-modeline-vc-state 'risky-local-variable-p t)
+    (put 'my-modeline-vc-state 'risky-local-variable-p t)
 
-  (defvar-local my-modeline-modified-state
-      '(:eval
-        (when (buffer-modified-p)
-          (propertize " ☡ "
-                      'face '(:foreground "orange")
-                      'help-echo "buffer modified"))))
+    (defvar-local my-modeline-modified-state
+	'(:eval
+	  (when (buffer-modified-p)
+	    (propertize " ☡ "
+			'face '(:foreground "orange")
+			'help-echo "buffer modified"))))
 
-  (put 'my-modeline-modified-state 'risky-local-variable-p t)
+    (put 'my-modeline-modified-state 'risky-local-variable-p t)
 
 #+end_src
 
@@ -687,11 +688,11 @@ Don't want a bloated modeline in Emacs, so I decided to use this one:
 #+begin_src emacs-lisp
 (setq frame-title-format
       '(""
-        "%b"
-        (:eval
-         (let ((project-name (projectile-project-name)))
-           (unless (string= "-" project-name)
-             (format (if (buffer-modified-p) " ◉ %s" "  ●  %s - Emacs") project-name))))))
+	"%b"
+	(:eval
+	 (let ((project-name (projectile-project-name)))
+	   (unless (string= "-" project-name)
+	     (format (if (buffer-modified-p) " ◉ %s" "  ●  %s - Emacs") project-name))))))
 #+end_src
 
 #+RESULTS:
@@ -727,9 +728,9 @@ with command =marginalia-cycle=.
   (ensure-package-installed 'marginalia)
   (when (require 'marginalia nil :noerror)
     (customize-set-variable 'marginalia-annotators
-                            '(marginalia-annotators-heavy
-                              marginalia-annotators-light
-                              nil))
+			    '(marginalia-annotators-heavy
+			      marginalia-annotators-light
+			      nil))
     (marginalia-mode 1))
 #+end_src
 
@@ -747,7 +748,7 @@ literal matches are enabled.
   (when (require 'orderless nil :noerror)
     (customize-set-variable 'completion-styles '(orderless basic))
     (customize-set-variable 'completion-category-overrides
-                            '((file (styles . (partial-completion))))))
+			    '((file (styles . (partial-completion))))))
 #+end_src
 
 #+RESULTS:
@@ -780,7 +781,7 @@ for a set of buffers, or customize for a set of variables.
 
     (when (require 'embark-consult nil :noerror)
       (with-eval-after-load 'embark-consult
-        (add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
+	(add-hook 'embark-collect-mode-hook #'consult-preview-at-point-mode))))
 #+end_src
 
 #+RESULTS:
@@ -795,7 +796,7 @@ counterpart of the [[https://github.com/minad/vertico][Vertico]] minibuffer UI.
 
     (unless (display-graphic-p)
       (when (require 'corfu-terminal nil :noerror)
-        (corfu-terminal-mode +1)))
+	(corfu-terminal-mode +1)))
 
     ;; Setup corfu for popup like completion
     (customize-set-variable 'corfu-cycle t) ; Allows cycling through candidates
@@ -856,17 +857,17 @@ group project buffers together when listing buffers with ibuffer.
   `(add-hook 'some-mode-hook #'eglot-ensure)'"
     (dolist (mode-def mode-list)
       (let ((mode (if (listp mode-def) (car mode-def) mode-def)))
-        (cond
-         ((listp mode) (add-eglot-hooks mode))
-         (t
-          (when (and (fboundp mode)
-                     (not (eq 'clojure-mode mode))
-                     (not (eq 'lisp-mode mode))
-                     (not (eq 'scheme-mode mode))
-                     )
-            (let ((hook-name (format "%s-hook" (symbol-name mode))))
-              (message "adding eglot to %s" hook-name)
-              (add-hook (intern hook-name) #'eglot-ensure))))))))
+	(cond
+	 ((listp mode) (add-eglot-hooks mode))
+	 (t
+	  (when (and (fboundp mode)
+		     (not (eq 'clojure-mode mode))
+		     (not (eq 'lisp-mode mode))
+		     (not (eq 'scheme-mode mode))
+		     )
+	    (let ((hook-name (format "%s-hook" (symbol-name mode))))
+	      (message "adding eglot to %s" hook-name)
+	      (add-hook (intern hook-name) #'eglot-ensure))))))))
 
 
   (with-eval-after-load "eglot"
@@ -911,10 +912,10 @@ I Also want a more modern look for ~org-mode~, so lets's enable ~org-modern~.
   (ensure-package-installed 'org-appear)
 
   (setq org-appear-autoemphasis t
-        org-hide-emphasis-markers t
-        org-appear-autolinks t
-        org-appear-autoentities t
-        org-appear-autosubmarkers t)
+	org-hide-emphasis-markers t
+	org-appear-autolinks t
+	org-appear-autoentities t
+	org-appear-autosubmarkers t)
 
   (ensure-package-installed 'org-modern)
   (add-hooks-pair '(org-mode) '(org-appear-mode org-modern-mode))
@@ -997,11 +998,11 @@ Open files from dired-mode via shortcut
 
   (when (require 'openwith nil 'oerror)
     (setq openwith-associations
-          (list
-           (list (openwith-make-extension-regexp
-                  '("pdf" "ps" "ps.gz" "dvi"))
-                 "zathura"
-                 '(file))))
+	  (list
+	   (list (openwith-make-extension-regexp
+		  '("pdf" "ps" "ps.gz" "dvi"))
+		 "zathura"
+		 '(file))))
     (openwith-mode 1))
 #+end_src
 
@@ -1009,8 +1010,8 @@ Open files from dired-mode via shortcut
 
 #+begin_src emacs-lisp
   (customize-set-variable 'dired-compress-file-alist
-                          '(("\\.tar\\.gz\\'" . "tar -c %i | gzip -c9 > %o")
-                            ("\\.zip\\'" . "zip %o -r --filesync %i")))
+			  '(("\\.tar\\.gz\\'" . "tar -c %i | gzip -c9 > %o")
+			    ("\\.zip\\'" . "zip %o -r --filesync %i")))
 #+end_src
 * Eshell
 :PROPERTIES:
@@ -1027,10 +1028,10 @@ Open files from dired-mode via shortcut
 #+begin_src emacs-lisp
   (ensure-package-installed 'eshell)
   (setq eshell-prompt-function
-        (lambda ()
-          (concat (abbreviate-file-name (eshell/pwd))
-                  (if (= (user-uid) 0) " # " " λ ")))
-        eshell-prompt-regexp "^[^#λ\n]* [#λ] ")
+	(lambda ()
+	  (concat (abbreviate-file-name (eshell/pwd))
+		  (if (= (user-uid) 0) " # " " λ ")))
+	eshell-prompt-regexp "^[^#λ\n]* [#λ] ")
 
   (ensure-package-installed 'eshell-syntax-highlighting)
   (eshell-syntax-highlighting-global-mode +1)
@@ -1042,8 +1043,8 @@ Open files from dired-mode via shortcut
 Need the correct /PATH/ even when we start emacs from GUI
 #+begin_src emacs-lisp
   (setenv "PATH"
-          (concat "/usr/local/bin:/usr/local/sbin:"
-                  (getenv "PATH")))
+	  (concat "/usr/local/bin:/usr/local/sbin:"
+		  (getenv "PATH")))
 #+end_src
 *** Pager Setup
 :PROPERTIES:
@@ -1065,12 +1066,12 @@ kill ring is a great feature of Eshell. However, instead of running end-of-buffe
 key-binding, the following setting means any other key will jump back to the prompt:
 #+begin_src emacs-lisp
   (setq ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
-          eshell-scroll-to-bottom-on-input 'all
-          eshell-error-if-no-glob t
-          eshell-hist-ignoredups t
-          eshell-save-history-on-exit t
-          eshell-prefer-lisp-functions nil
-          eshell-destroy-buffer-when-process-dies t)
+	  eshell-scroll-to-bottom-on-input 'all
+	  eshell-error-if-no-glob t
+	  eshell-hist-ignoredups t
+	  eshell-save-history-on-exit t
+	  eshell-prefer-lisp-functions nil
+	  eshell-destroy-buffer-when-process-dies t)
 #+end_src
 
 I can never seem to remember that ~find~ and ~chmod~ behave differently from Emacs
@@ -1087,10 +1088,10 @@ handling of ansiterm:
 
 #+begin_src emacs-lisp
   (add-hook 'eshell-mode-hook
-            (lambda ()
-              (add-to-list 'eshell-visual-commands "ssh")
-              (add-to-list 'eshell-visual-commands "tail")
-              (add-to-list 'eshell-visual-commands "top")))
+	    (lambda ()
+	      (add-to-list 'eshell-visual-commands "ssh")
+	      (add-to-list 'eshell-visual-commands "tail")
+	      (add-to-list 'eshell-visual-commands "top")))
 #+end_src
 
 ** Aliases
@@ -1154,15 +1155,15 @@ I always forget and type clear, so let’s implement it:
     it doesn't contain the org-mode #+TAGS: entry specified."
 
       (if (looking-at "'\\([^)']+\\)'")
-          (let* ((tag (match-string 1))
-                 (reg (concat "^#\\+TAGS:.* " tag "\\b")))
-            (goto-char (match-end 0))
+	  (let* ((tag (match-string 1))
+		 (reg (concat "^#\\+TAGS:.* " tag "\\b")))
+	    (goto-char (match-end 0))
 
-            `(lambda (file)
-               (with-temp-buffer
-                 (insert-file-contents file)
-                 (re-search-forward ,reg nil t 1))))
-        (error "The `T' predicate takes an org-mode tag value in single quotes.")))
+	    `(lambda (file)
+	       (with-temp-buffer
+		 (insert-file-contents file)
+		 (re-search-forward ,reg nil t 1))))
+	(error "The `T' predicate takes an org-mode tag value in single quotes.")))
   #+END_SRC
 
   Add it to the =eshell-predicate-alist= as the =T= tag:
@@ -1194,7 +1195,7 @@ I always forget and type clear, so let’s implement it:
     (re-search-forward eshell-prompt-regexp nil t n)
     (when eshell-highlight-prompt
       (while (not (get-text-property (line-beginning-position) 'read-only) )
-        (re-search-forward eshell-prompt-regexp nil t n)))
+	(re-search-forward eshell-prompt-regexp nil t n)))
     (eshell-skip-prompt))
 
   (defun eshell-previous-prompt (n)
@@ -1207,15 +1208,15 @@ I always forget and type clear, so let’s implement it:
     "Displays the eshell history to select and insert back into your eshell."
     (interactive)
     (insert (ido-completing-read "Eshell history: "
-                                 (delete-dups
-                                  (ring-elements eshell-history-ring)))))
+				 (delete-dups
+				  (ring-elements eshell-history-ring)))))
 
   (global-unset-key (kbd "M-r"))
 
   (add-hook 'eshell-mode-hook (lambda ()
-                                (define-key eshell-mode-map (kbd "M-S-P") 'eshell-previous-prompt)
-                                (define-key eshell-mode-map (kbd "M-S-N") 'eshell-next-prompt)
-                                (define-key eshell-mode-map (kbd "M-r") 'eshell-insert-history)))
+				(define-key eshell-mode-map (kbd "M-S-P") 'eshell-previous-prompt)
+				(define-key eshell-mode-map (kbd "M-S-N") 'eshell-next-prompt)
+				(define-key eshell-mode-map (kbd "M-r") 'eshell-insert-history)))
 #+end_src
 
 ** Eshell Here
@@ -1227,10 +1228,10 @@ I always forget and type clear, so let’s implement it:
   directory to make multiple eshell windows easier."
     (interactive)
     (let* ((parent (if (buffer-file-name)
-                       (file-name-directory (buffer-file-name))
-                     default-directory))
-           (height (/ (window-total-height) 3))
-           (name (car (last (split-string parent "/")))))
+		       (file-name-directory (buffer-file-name))
+		     default-directory))
+	   (height (/ (window-total-height) 3))
+	   (name (car (last (split-string parent "/")))))
       (split-window-vertically (- height))
       (other-window 1)
       (eshell "new")
@@ -1245,9 +1246,9 @@ I always forget and type clear, so let’s implement it:
 #+begin_src emacs-lisp
   (ensure-package-installed 'rainbow-delimiters 'lispy)
   (add-hooks-pair '(emacs-lisp-mode)
-                  '(rainbow-delimiters-mode
-                    electric-pair-mode
-                    lispy-mode))
+		  '(rainbow-delimiters-mode
+		    electric-pair-mode
+		    lispy-mode))
 #+end_src
 
 #+RESULTS:
@@ -1263,23 +1264,23 @@ I always forget and type clear, so let’s implement it:
 
   (with-eval-after-load 'org-capture
     (add-to-list 'org-capture-templates
-                 '("n" "New note (with Denote)" plain
-                   (file denote-last-path)
-                   #'denote-org-capture
-                   :no-save t
-                   :immediate-finish nil
-                   :kill-buffer t
-                   :jump-to-captured t)))
+		 '("n" "New note (with Denote)" plain
+		   (file denote-last-path)
+		   #'denote-org-capture
+		   :no-save t
+		   :immediate-finish nil
+		   :kill-buffer t
+		   :jump-to-captured t)))
 
   (require 'denote-org-dblock)
 
   (customize-set-variable 'denote-directory (eval notes-directory))
   (customize-set-variable 'denote-known-keywords
-                          '("emacs"
-                            "programming"
-                            "linux"
-                            "education"
-                            "pwn"))
+			  '("emacs"
+			    "programming"
+			    "linux"
+			    "education"
+			    "pwn"))
 
   (add-hook 'dired-mode-hook (lambda () (denote-dired-mode 1)))
 
@@ -1324,7 +1325,7 @@ I always forget and type clear, so let’s implement it:
 #+begin_src emacs-lisp
   (ensure-package-installed 'consult-notes)
   (customize-set-variable 'consult-notes-file-dir-sources
-                          `(("Denote" ?d ,notes-directory)))
+			  `(("Denote" ?d ,notes-directory)))
 #+end_src
 * Openwith associations
 Openwith is a simple but very useful package to make Emacs associate various file types with external applications.
@@ -1335,11 +1336,11 @@ It also works with recentf and ido.
 #+begin_src emacs-lisp
   (when (require 'openwith nil 'noerror)
     (setq openwith-associations
-          (list
-           (list (openwith-make-extension-regexp
-                  '("pdf" "dvi" "eps"))
-                 "zathura"
-                 '(file))))
+	  (list
+	   (list (openwith-make-extension-regexp
+		  '("pdf" "dvi" "eps"))
+		 "zathura"
+		 '(file))))
     (openwith-mode 1))
 #+end_src
 * Tools
@@ -1370,7 +1371,7 @@ appliction.
   ;; Necessary to convert json to property list and
   ;; list, respectively
   (setq json-object-type 'plist
-        json-array-type 'list)
+	json-array-type 'list)
 
   (defun r2--copy-output-filter (process output)
     (setq r2pipe-latest-output output))
@@ -1379,10 +1380,10 @@ appliction.
     "Opens a new r2pipe connected to a r2 process connected
     which is inspecting `FILE'"
     (make-process :name "r2pipe" :buffer "*r2pipe*"
-                  :command (list r2-bin-path "-q0" file)
-                  :connection-type 'pipe
-                  :filter 'r2--copy-output-filter
-                  :stderr (get-buffer-create "*r2pipe-stderr*")))
+		  :command (list r2-bin-path "-q0" file)
+		  :connection-type 'pipe
+		  :filter 'r2--copy-output-filter
+		  :stderr (get-buffer-create "*r2pipe-stderr*")))
 
   (defun r2write (process cmd)
     "Send a `CMD' via r2pipe to a `PROCESS'"
@@ -1398,9 +1399,9 @@ appliction.
 
   (defun r2pipe-find-string (process string)
     (cond ((stringp string)
-           (plist-get (car (r2cmd-json process (format "/j %s" string))) :offset))
-          (t
-           (message "Wrong type argument for string"))))
+	   (plist-get (car (r2cmd-json process (format "/j %s" string))) :offset))
+	  (t
+	   (message "Wrong type argument for string"))))
 
   (defun r2pipe-find-xrefs (process obj-addr)
     (r2cmd-json process (format "axtj @ %s~lea rdi" obj-addr)))
@@ -1428,13 +1429,13 @@ appliction.
     (progn
       (setq candidates (split-string r2pipe-latest-output "\n" t))
       (ivy-read "Info: " candidates
-                :re-builder #'ivy--regex-fuzzy
-                :action #'insert
-                :caller 'r2pipe-output)))
+		:re-builder #'ivy--regex-fuzzy
+		:action #'insert
+		:caller 'r2pipe-output)))
 
 #+end_src
 
-** TODO Lean Prover
+** Lean Prover
 
 #+begin_src emacs-lisp
 
@@ -1445,12 +1446,69 @@ appliction.
   (let ((need-to-refresh t))
     (dolist (p lean4-mode-required-packages)
       (when (not (package-installed-p p))
-        (when need-to-refresh
-          (package-refresh-contents)
-          (setq need-to-refresh nil))
-        (package-install p))))
+	(when need-to-refresh
+	  (package-refresh-contents)
+	  (setq need-to-refresh nil))
+	(package-install p))))
 
   (require 'lean4-mode)
 
   (customize-set-variable 'lean4-rootdir "~/.elan/toolchains/stable/")
+#+end_src
+
+** Haskell Mode Settings
+#+begin_src emacs-lisp
+  (let ((my-ghcup-path (expand-file-name "~/.ghcup/bin")))
+    (setenv "PATH" (concat "/home/void/.ghcup/bin/" ":" (getenv "PATH")))
+    (add-to-list 'exec-path my-ghcup-path))
+#+end_src
+
+** Scala Mode Settings
+
+#+begin_src emacs-lisp
+  ;; (ensure-package-installed 'lsp-metals)
+  ;; (let ((my-cs-path (expand-file-name "~/.local/share/coursier/bin")))
+  ;;   (setenv "PATH" (concat my-cs-path ":" (getenv "PATH")))
+  ;;   (add-to-list 'exec-path my-cs-path))
+
+  ;; (use-package scala-mode
+  ;;   :mode "\\.s\\(cala\\|bt\\)$")
+
+  ;; (use-package sbt-mode
+  ;;   :commands sbt-start sbt-command
+  ;;   :config
+  ;;   (substitute-key-definition
+  ;;    'minibuffer-complete-word
+  ;;    'self-insert-command
+  ;;    minibuffer-local-completion-map))
+
+  ;; (use-package eglot
+  ;;   :config
+  ;;   (add-to-list 'eglot-server-programs '(scala-mode . ("metals")))
+  ;;   :hook (scala-mode . eglot-ensure))
+
+  ;;   (dap-register-debug-template
+  ;;     "Scala Attach Foundations (localhost:5005)"
+  ;;     '(:type "scala"
+  ;;       :request "attach"
+  ;;       :name "Scala Attach Foundations (localhost:5005)"
+  ;;       :hostName "localhost"
+  ;;       :port 5005))
+
+#+end_src
+
+** Yequake (Drop-Down Terminal)
+
+#+begin_src emacs-lisp
+  (ensure-package-installed 'yequake)
+  (require 'yequake)
+
+  (customize-set-variable 'yequake-frames '(("Yequake & scratch" .
+	   ((width . 0.75)
+	    (height . 0.5)
+	    (alpha . 0.95)
+	    (buffer-fns . ("~/src/emacs/yequake/yequake.el"
+			   split-window-horizontally
+			   "*scratch*"))
+	    (frame-parameters . ((undecorated . t)))))))
 #+end_src
