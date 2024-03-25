@@ -119,7 +119,7 @@ for_window [class="Emacs"] opacity 0.1
 
 # Swaylock lock screen
 # bindsym --to-code $mod+Escape exec swaylock -c "000b1e" --ring-color="ea00d9" --key-hl-color="ea00d9"
-bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/outrun.jpg --ring-color="ea00d9" --key-hl-color="ea00d9"
+bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/outrun-2.jpg --ring-color="ea00d9" --key-hl-color="ea00d9"
 
 # Reload the configuration file
 bindsym --to-code $mod+Shift+r reload
@@ -238,7 +238,7 @@ seat seat0 xcursor_theme Breeze-Hacked 28
 exec_always python ~/.config/sway/swayfader.py
 
 # wallpaper
-exec_always swaybg -o \* -i ~/.config/sway/outrun.jpg -m fill
+exec_always swaybg -o \* -i ~/.config/sway/outrun-2.jpg -m fill
 #exec_always swaybg -o \* -i ~/Downloads/Gnu_meditate_levitate.png -m fill
 
 # when going idle
