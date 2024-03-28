@@ -1711,7 +1711,7 @@ appliction.
 	      (eglot-ensure)))
 
   (defun my-latex-mode ()
-    (add-to-list 'TeX-view-program-list '("Zathura" "zathura --page=%(outpage) %o"))
+    (add-to-list 'TeX-view-program-list '("Zathura"  ("zathura %o" (mode-io-correlate " --synctex-forward %n:0:\"%b\" -x \"emacsclient +%{line} %{input}\""))) "zathura")
     (setq TeX-view-program-selection
 	  '((output-pdf "Zathura"))))
 
