@@ -1717,3 +1717,21 @@ appliction.
 
   (add-hook 'LaTeX-mode-hook #'my-latex-mode)
 #+end_src
+
+** Prayer times
+
+#+begin_src emacs-lisp
+
+  (straight-use-package '(awqat
+			  :host github
+			  :repo "zkry/awqat"
+			  :branch "master"))
+
+  (require 'awqat)
+  (setq calendar-latitude 52.439
+	calendar-longitude 13.436)
+  (setq awqat-asr-hanafi nil)
+  (setq awqat-fajr-angle -18.0)
+  (setq awqat-isha-angle -16.0)
+  (setq org-agenda-include-diary t)
+#+end_src
