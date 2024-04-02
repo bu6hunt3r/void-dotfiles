@@ -81,11 +81,10 @@
     "on-click-left": "playerctl previous"
   },
   "custom/prayers": {
-    "format": "{}",
-    "format-icons": "󱠧",
+    "interval": 60,
     "return-type": "json",
     "exec": "$HOME/.local/bin/prayer.sh",
-    "on-click": "$HOME/.local/bin/prayer-times-yad.sh"
-
+    "on-click": "$HOME/.local/bin/prayers-display.sh yad",
+    "format": "󱠧   {}",
   }
 }

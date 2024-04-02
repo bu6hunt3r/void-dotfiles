@@ -262,3 +262,6 @@ exec_always kanshi
 
 # exec emacs as a service
 exec_always emacs --daemon
+
+# exec prayer-times
+exec /home/void/.local/bin/prayer-times.sh
