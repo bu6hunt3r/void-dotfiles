@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> refs/remotes/origin/main
 ---
 - include_tasks: check_for_unzip.yml
 
@@ -22,6 +26,7 @@
     file_type: directory
   register: files
 
+<<<<<<< HEAD
 - name: Deploy dotfiles
   become_user: '{{user}}'
   become: yes
@@ -45,6 +50,24 @@
 #     line: "export PATH=/home/void/.cargo/bin:$PATH"
 #     owner: void
 #     group: void
+=======
+- name: Install cargo for rust
+  community.general.xbps:
+    name: cargo
+
+- name: Add cargo's path to .profile
+  lineinfile:
+    path: /home/void/.profile
+    line: "export PATH=/home/void/.cargo/bin:$PATH"
+    owner: void
+    group: void
+
+- name: Install pw-volume from cargo
+  shell: |
+    cargo install pw-volume
+  become: yes
+  become_user: '{{user}}'
+>>>>>>> refs/remotes/origin/main
 
 - name: Clone yasnippet repository
   git:
@@ -61,3 +84,37 @@
     dest: /tmp/nanorc.zip
     mode: 0440
   when: is_unzip_exist|success
+<<<<<<< HEAD
+=======
+
+- name: Deploy dotfiles
+  become_user: '{{user}}'
+  become: yes
+  with_items: '{{files.files}}'
+  shell: |
+    STOW_PATH={{item.path | replace("dotfiles/", "")}}
+    OVERRIDE=$(cat ${STOW_PATH}/.override 2>/dev/null)
+    VOID_HOME=$(getent passwd void | cut -d: -f6)
+    stow -v --ignore "\.override" -t ${OVERRIDE:-$VOID_HOME} ${STOW_PATH}
+  args:
+    chdir: ./dotfiles
+    executable: /bin/bash
+  loop_control:
+    label: |-
+      {% if output.stderr|length > 1 %}
+      {{ item.path }}
+      {{ output.stderr }}
+      {% else %}
+      {{ item.path }}
+      {%- endif %}
+  register: output
+  changed_when: '"LINK" in output.stderr'
+
+- name: Tangle emacs.org configuration
+  become_user: '{{user}}'
+  become: yes
+  shell: |
+    /home/'{{user}}'/.emacs.d/tangle.el
+  args:
+    executable: /bin/bash
+>>>>>>> refs/remotes/origin/main

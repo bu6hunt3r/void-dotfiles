@@ -1,7 +1,7 @@
 {
     "position": "left",
     "modules-left": ["tray", "sway/workspaces"],
-    "modules-right": ["battery", "custom/separator", "wireplumber", "custom/separator", "memory", "custom/separator", "clock", "custom/separator", "custom/player", "custom/separator", "custom/power"],
+    "modules-right": ["battery", "custom/separator", "wireplumber", "custom/separator", "memory", "custom/separator", "clock", "custom/separator", "custom/player", "custom/separator", "custom/prayers", "custom/separator", "custom/power"],
 
     "sway/workspaces": {
 	       "disable-scroll": true,
@@ -79,5 +79,12 @@
     "on-click-middle": "playerctl play-pause",
     "on-click-right": "plaerctl next",
     "on-click-left": "playerctl previous"
+  },
+  "custom/prayers": {
+    "interval": 60,
+    "return-type": "json",
+    "exec": "$HOME/.local/bin/prayer.sh",
+    "on-click": "$HOME/.local/bin/prayers-display.sh yad",
+    "format": "󱠧   {}",
   }
 }

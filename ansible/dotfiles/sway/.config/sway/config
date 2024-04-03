@@ -119,7 +119,7 @@ for_window [class="Emacs"] opacity 0.1
 
 # Swaylock lock screen
 # bindsym --to-code $mod+Escape exec swaylock -c "000b1e" --ring-color="ea00d9" --key-hl-color="ea00d9"
-bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/purple.jpg --ring-color="ea00d9" --key-hl-color="ea00d9"
+bindsym --to-code $mod+Escape exec swaylock --image ~/.config/sway/outrun-2.jpg --ring-color="ea00d9" --key-hl-color="ea00d9"
 
 # Reload the configuration file
 bindsym --to-code $mod+Shift+r reload
@@ -238,14 +238,14 @@ seat seat0 xcursor_theme Breeze-Hacked 28
 exec_always python ~/.config/sway/swayfader.py
 
 # wallpaper
-exec_always swaybg -o \* -i ~/.config/sway/outrun.jpg -m fill
+exec_always swaybg -o \* -i ~/.config/sway/outrun-2.jpg -m fill
 #exec_always swaybg -o \* -i ~/Downloads/Gnu_meditate_levitate.png -m fill
 
 # when going idle
 for_window [app_id="lock_term"] fullscreen global;
 
 exec swayidle -w \
-        timeout 45 'foot --app-id=lock_term unimatrix -t 75'
+	timeout 45 'foot --app-id=lock_term unimatrix -t 75'
 
 # redshift
 exec gammastep -l 50.6:6.9 -t 5700:3600 -g 0.8
@@ -262,3 +262,6 @@ exec_always kanshi
 
 # exec emacs as a service
 exec_always emacs --daemon
+
+# exec prayer-times
+exec /home/void/.local/bin/prayer-times.sh

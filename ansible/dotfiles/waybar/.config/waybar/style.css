@@ -66,6 +66,12 @@ margin: 10px;
     margin-bottom: 20px;
 }
 
+#custom-prayers {
+    font-size: 1.0em;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 #custom-power {
     color: #141b1e;
     background-color: #e57474;
