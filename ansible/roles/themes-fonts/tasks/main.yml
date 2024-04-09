@@ -7,6 +7,7 @@
       - noto-fonts-ttf # unicode font
       - nerd-fonts # Iconic font aggregator
       - font-awesome5 # Icon font
+      - font-spleen
       - Adapta # theme for tiny waybar
 
 ### Equilux
@@ -16,7 +17,7 @@
     path: /usr/share/themes/Equilux
   register: equilux
 
-  
+
 - name: download equilux theme
   unarchive:
     src: https://github.com/ddnexus/equilux-theme/archive/equilux-v20181029.tar.gz
@@ -57,7 +58,6 @@
   with_fileglob: /tmp/jetbrains/ttf/*
   when: jetbrains.stat.islnk is not defined
 
-
 ### Agave nerd font
 
 - name: stat agave font
@@ -70,14 +70,14 @@
     path: /tmp/agave
     state: directory
   when: agave.stat.islnk is not defined
-  
+
 - name: download agave nerd font
   unarchive:
     src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/Agave.zip
     dest: /tmp/
     remote_src: yes
   when: agave.stat.islnk is not defined
-  
+
 - name: install agave font
   copy:
     src: '{{ item }}'
@@ -114,7 +114,7 @@
     remote_src: yes
   with_fileglob: /tmp/cabin/Cabin-master/fonts/OTF/*
   when: cabin.stat.islnk is not defined
-    
+
 ### Mononoki
 
 - name: stat mononoki font

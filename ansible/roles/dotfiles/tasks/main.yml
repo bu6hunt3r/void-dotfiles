@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 - include_tasks: check_for_unzip.yml
 
