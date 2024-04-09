@@ -26,18 +26,16 @@
   community.general.xbps:
     name: cargo
 
-- name: Add cargo's path to .profile
-  lineinfile:
-    path: /home/void/.profile
-    line: "export PATH=/home/void/.cargo/bin:$PATH"
-    owner: void
-    group: void
+# - name: Install cargo for rust
+#   community.general.xbps:
+#   name: cargo
 
-- name: Install pw-volume from cargo
-  shell: |
-    cargo install pw-volume
-  become: yes
-  become_user: '{{user}}'
+# - name: Add cargo's path to .profile
+#   lineinfile:
+#     path: /home/void/.profile
+#     line: "export PATH=/home/void/.cargo/bin:$PATH"
+#     owner: void
+#     group: void
 
 - name: Clone yasnippet repository
   git:
