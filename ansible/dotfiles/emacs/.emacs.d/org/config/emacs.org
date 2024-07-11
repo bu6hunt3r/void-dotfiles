@@ -11,15 +11,6 @@
 :PROPERTIES:
 :CUSTOM_ID: Package-Management-Repositories
 :END:
-By default, only GNU’s repositories are available to the package
-managers of Emacs. I also want to use Melpa and org-mode’s repository,
-so let’s add them! Note that the stock /elpa/ repository is renamed to
-/gnu/ due to the addition of another Elpa repository, /nongnu/, which will
-hosts packages that do not conform to the FSF’s copyright assignment.
-Both the /gnu/ and the /nonfree/ repositories are Elpa repositories now,
-and they are renamed here in order to avoid any confusion between the
-two of them. Melpa is a community-maintained repository which contains
-an absurd amount of Emacs packages.
 #+begin_src emacs-lisp
   (require 'package)
   (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
@@ -30,6 +21,15 @@ an absurd amount of Emacs packages.
   (package-initialize)
   (package-refresh-contents)
 #+end_src
+By default, only GNU’s repositories are available to the package
+managers of Emacs. I also want to use Melpa and org-mode’s repository,
+so let’s add them! Note that the stock /elpa/ repository is renamed to
+/gnu/ due to the addition of another Elpa repository, /nongnu/, which will
+hosts packages that do not conform to the FSF’s copyright assignment.
+Both the /gnu/ and the /nonfree/ repositories are Elpa repositories now,
+and they are renamed here in order to avoid any confusion between the
+two of them. Melpa is a community-maintained repository which contains
+an absurd amount of Emacs packages.
 
 #+RESULTS:
 
@@ -536,7 +536,7 @@ background transparent, excluding images and text.
 I don’t like the default font I usually have on my machines, I really
 don’t. I prefer [[https://github.com/microsoft/cascadia-code][~JetBrains Mono~]].
 #+begin_src emacs-lisp
-  (defvar my/default-font-size 160
+  (defvar my/default-font-size 140
     "Default font size.")
 
   ;; (defvar my/default-font-name "Iosevka Comfy Motion"
@@ -737,6 +737,12 @@ Don't want a bloated modeline in Emacs, so I decided to use this one:
 #+RESULTS:
 |   | %b | (:eval (let ((project-name (projectile-project-name))) (unless (string= - project-name) (format (if (buffer-modified-p)  ◉ %s   ●  %s - Emacs) project-name)))) |
 
+** Dashboard
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :init
+    (setq dashboard-startup-banner "~/Bilder/meditate.png"))
+#+end_src
 * Completion
 Vertical completion i.e. when using find-file:
 #+begin_src emacs-lisp
@@ -1291,6 +1297,24 @@ I always forget and type clear, so let’s implement it:
   (setq tramp-default-method "ssh")
 #+end_src
 
+** Improvement for rx
+:PROPERTIES:
+:CUSTOM_ID: Eshell-rx
+:END:
+#+begin_src emacs-lisp
+            (use-package pcre2el
+              :straight (:host github :repo
+                               "joddie/pcre2el")
+              :config
+              (defmacro prx (&rest rx-sexp)
+                `(rx-let ((integer (1+ digit))
+                          (float (seq integer "." integer))
+                          (time (seq digit
+                                     (optional digit) ":" (= 2 digit)
+                                     (optional ":" (= 2 digit)))))
+                `(rxt-elisp-to-pcre (rx ,@rx-sexp)))))
+#+end_src
+
 ** Better Commandline History
 
 #+begin_src emacs-lisp
@@ -1354,16 +1378,114 @@ I always forget and type clear, so let’s implement it:
 (add-to-list 'load-path "/home/void/.emacs.d/lisp/aweshell/")
 (require 'aweshell)
 #+end_src
-* Emacs Lisp settings
+
+** Do function on files
 #+begin_src emacs-lisp
-  (ensure-package-installed 'rainbow-delimiters 'lispy)
-  (add-hooks-pair '(emacs-lisp-mode)
-                  '(rainbow-delimiters-mode
-                    electric-pair-mode
-                    lispy-mode))
+  (defun eshell-fn-on-files (f1 f2 args)
+    "Call `f1' on first element in list `args'.
+  Call `f2' on rest of the elements in `args'."
+    (unless (null args)
+      (let ((filenames (flatten-list args)))
+        (funcall f1 (car filenames))
+        (when (cdr filenames)
+          (mapcar f2 (cdr filenames))))
+      ;; Return empty string, as results:
+      ""))
+
 #+end_src
 
-#+RESULTS:
+** Aliases
+#+begin_src emacs-lisp
+  (defun eshell/less (&rest files)
+    "Expand alias to `view-file'."
+    (eshell-fn-on-files 'view-file
+                        'view-file-other-window files))
+#+end_src
+
+* Emacs Lisp settings
+#+begin_src emacs-lisp
+    (ensure-package-installed 'paren-face 'rainbow-delimiters 'lispy)
+    (add-hooks-pair '(emacs-lisp-mode)
+                    '(electric-pair-mode
+                      lispy-mode
+                      paren-face-mode))
+#+end_src
+
+** Lispyville Settings
+
+#+begin_src emacs-lisp
+  (when (fboundp 'evil-define-key)
+    (use-package lispyville
+      :hook ((emacs-lisp-mode lisp mode) . lispyville-mode)))
+
+  (when (fboundp 'evil-define-key)
+    (use-package lispyville
+      :config
+      (lispyville-set-key-theme '(operators atom-movement
+                                            commentary slurp/barf-lispy additional-wrap
+                                            additional additional-insert))
+
+      (evil-define-key '(normal insert emacs) lispyville-mode-map
+        (kbd "M-h") 'lispyville-beginning-of-defun
+        (kbd "M-l") 'lispyville-beginning-of-next-defun
+        (kbd "M-i") 'lispyville-insert-at-beginning-of-list ; These are useful
+        (kbd "M-a") 'lispyville-insert-at-end-of-list ; and I want to use
+        (kbd "M-o") 'lispyville-open-below-list ; these in insert
+        (kbd "M-O") 'lispyville-open-above-list ; or Emacs state.
+
+        ;; The c-w theme is VI-specific. I still use Emacs' M-Delete:
+        (kbd "M-DEL")  'lispyville-delete-backward-word)
+
+      ;; Sentence and paragraph movement doesn't make sense in a Lisp world,
+      ;; so I redefine these based on my own personal expectations:
+      (evil-define-key 'normal lispyville-mode-map
+        "H" 'lispyville-backward-sexp-begin
+        (kbd "M-H") 'lispyville-backward-sexp-end
+        "L" 'lispyville-forward-sexp-begin
+        (kbd "M-L") 'lispyville-forward-sexp-end
+        "(" 'lispyville-previous-opening
+        ")" 'lispyville-next-closing
+        "{" 'lispyville-backward-up-list
+        "}" 'lispyville-next-opening
+
+        "[ f" 'lispyville-beginning-of-defun
+        "] f" 'lispyville-beginning-of-next-defun
+        "] F" 'lispyville-end-of-next-defun)
+
+      ;; Visually high-light a region, just hit `(' to wrap it in parens.
+      ;; Without smartparens, we need to insert a pair of delimiters:
+      (evil-define-key '(visual insert emacs) lispyville-mode-map "(" 'lispy-parens)
+      (evil-define-key '(visual insert emacs) lispyville-mode-map "[" 'lispy-brackets)
+      (evil-define-key '(visual insert emacs) lispyville-mode-map "{" 'lispy-braces)))
+
+#+end_src
+
+** Eval current expression
+
+#+begin_src emacs-lisp
+    (require 'smartparens)
+    (require 'eros)
+
+    (defun eval-current-expression ()
+      "Evaluates the expression the point is currently 'in'.
+    It does this, by jumping to the end of the current
+    expression (using evil-cleverparens), and evaluating what it
+    finds at that point."
+      (interactive)
+      (save-excursion
+        (if (region-active-p)
+            (eval-region (region-beginning) (region-end))
+
+          (unless (looking-at (rx (any ")" "]")))
+            (sp-end-of-sexp))
+
+          (if (fboundp 'eros-eval-last-sexp)
+              (call-interactively 'eros-eval-last-sexp)
+            (call-interactively 'eval-last-sexp)))))
+
+  (my/leader-key :keymaps '(emacs-lisp-mode-map lisp-mode-map)
+    "e e" '("current" . eval-current-expression))
+#+end_src
 
 * Set path
 * Denotes
@@ -1642,6 +1764,13 @@ appliction.
   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 #+end_src
 
+** Ruby mode settings
+#+begin_src emacs-lisp
+  ;; (let ((solargraph-path "/home/void/.local/share/gem/ruby/3.2.0/bin"))
+  ;;   (setenv "PATH" (concat solargraph-path ":" (getenv "PATH")))
+  ;;   (add-to-list 'exec-path 'solargraph-path))
+  ;; (add-hook 'ruby-mode-hook 'eglot-ensure)
+#+END_SRC
 ** Disable some LSP features
 
 #+begin_src emacs-lisp
@@ -1755,4 +1884,46 @@ appliction.
    '(corfu-terminal
      :type git
      :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+#+end_src
+
+** Common Lisp settings
+
+#+begin_src emacs-lisp
+  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'lisp-mode-hook #'lispy-mode)
+#+end_src
+
+** Open message links in neomutt
+
+#+begin_src emacs-lisp
+  ; Make sure org-protocol is loaded
+  ; Now, org-protocol:// schemas are intercepted.
+  (require 'org-protocol)
+
+  ; Call this function, which spawns neomutt, whenever org-mode
+  ; tries to open a link of the form message://message-id+goes_here@mail.gmail.com
+  (defun stefanv/mutt-open-message (message-id)
+    "In neomutt, open the email with the the given Message-ID"
+    (let*
+        ((message-id (replace-regexp-in-string "^/*" "" message-id))
+         (mail-file
+          (replace-regexp-in-string
+           "\n$" "" (shell-command-to-string
+                     (format "notmuch search --output=files id:%s" message-id))))
+         (mail-dir (replace-regexp-in-string "/\\(cur\\|new\\|tmp\\)/$" ""
+                                             (file-name-directory mail-file)))
+         (process-id (concat "neomutt-" message-id))
+         (message-id-escaped (regexp-quote message-id))
+         (mutt-keystrokes
+          (format "l~i %s\n\n" (shell-quote-argument message-id-escaped)))
+         (mutt-command (list "neomutt" "-R" "-f" mail-dir
+                             "-e" (format "push '%s'" mutt-keystrokes))))
+
+      (message "Launching neomutt for message %s" message-id)
+      (call-process "setsid" nil nil "-f" "/usr/bin/kitty" "/usr/bin/neomutt" "-F" "~/.config/mutt/muttrc")))
+
+  ; Whenever org-mode sees a link starting with `message://`, it
+  ; calls our `mutt-open-message` function
+  (org-add-link-type "message" 'stefanv/mutt-open-message)
+
 #+end_src
